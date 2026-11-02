@@ -4,3 +4,5 @@ dist
 scripts/video/saida
 .vercel
 .env*
+scripts/video/saida
+scripts/video2/saida
