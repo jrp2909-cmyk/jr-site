@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+
+interface Props { titulo: string; descricao: string; }
+const { titulo, descricao } = Astro.props;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const og = new URL('/og.jpg', Astro.site).href;
+
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'JR! – Just Relationship CRM',
+  alternateName: 'JR!',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  description: descricao,
+  inLanguage: 'pt-BR',
+  author: { '@type': 'Person', name: 'Junior Pereira', url: 'https://www.linkedin.com/in/juniorpereira-/' },
+};
+---
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descricao} />
+    <meta name="theme-color" content="#090e1a" />
+    <link rel="canonical" href={url} />
+    <link rel="icon" type="image/png" href="/icone-256.png" />
+    <link rel="apple-touch-icon" href="/icone-256.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="JR! – Just Relationship CRM" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descricao} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="JR! – CRM de social selling, com o painel do sistema ao lado da logo" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={titulo} />
+    <meta name="twitter:description" content={descricao} />
+    <meta name="twitter:image" content={og} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
