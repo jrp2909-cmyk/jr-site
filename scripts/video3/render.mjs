@@ -1,7 +1,7 @@
 // Renderiza o video do JR! (precisa de `node preparar.mjs` antes).
 // Saidas: public/media/jr-demo.mp4 (+ poster.webp e legendas.vtt) no site e, em saida/redes/,
 // a versao vertical (9:16) e o teaser de 15 s para redes sociais.
-// Uso: node render.mjs [--so-demo | --so-redes | --emendar-intro]
+// Uso: node render.mjs [--so-demo | --so-redes | --so-teaser | --emendar-intro]
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -56,7 +56,10 @@ const montar = (video, destino, kbps) => {
   console.log('ok', destino, (statSync(destino).size / 1e6).toFixed(1) + ' MB');
 };
 const destino = join(site, 'public/media/jr-demo.mp4');
-if (process.argv.includes('--emendar-intro')) {
+const SO_TEASER = process.argv.includes('--so-teaser'); // nao mexe no video, no poster nem nas legendas do site
+if (SO_TEASER) {
+  console.log('so o teaser');
+} else if (process.argv.includes('--emendar-intro')) {
   // refaz so a abertura (cena 1) e emenda no render ja pronto, sem repetir os 30 min do video inteiro
   const fim = tempos.cenas[0].quadros;
   execFileSync(process.execPath, [CLI, 'render', BUNDLE, 'Demo', join(saida, 'intro-bruto.mp4'), '--muted', '--crf=16', `--frames=0-${fim - 1}`, `--browser-executable=${CHROME}`, '--concurrency=2'], { cwd: aqui, stdio: 'inherit' });
@@ -69,20 +72,24 @@ if (process.argv.includes('--emendar-intro')) {
 
 // 4) poster (abertura com a logo) e legendas WebVTT
 // o poster sai da versao de alta qualidade (antes da compressao final), para ficar nitido
-const bruto = existsSync(join(saida, 'demo-emendado.mp4')) && process.argv.includes('--emendar-intro') ? 'demo-emendado.mp4' : existsSync(join(saida, 'intro-bruto.mp4')) && process.argv.includes('--so-redes') ? 'intro-bruto.mp4' : 'demo-bruto.mp4';
-ff(['-ss', '3.6', '-i', bruto, '-frames:v', '1', 'poster.png']);
-await sharp(join(saida, 'poster.png')).webp({ quality: 82 }).toFile(join(site, 'public/media/poster.webp'));
-const ts = (s) => { const m = Math.floor(s / 60), x = (s % 60).toFixed(3).padStart(6, '0'); return `00:${String(m).padStart(2, '0')}:${x}`; };
-const vtt = ['WEBVTT', ''];
-for (const c of tempos.cenas) {
-  const ini = c.vozEm / tempos.fps;
-  vtt.push(`${ts(ini)} --> ${ts(ini + c.fala)}`, c.legenda, '');
+if (!SO_TEASER) {
+  const bruto = existsSync(join(saida, 'demo-emendado.mp4')) && process.argv.includes('--emendar-intro') ? 'demo-emendado.mp4' : existsSync(join(saida, 'intro-bruto.mp4')) && process.argv.includes('--so-redes') ? 'intro-bruto.mp4' : 'demo-bruto.mp4';
+  ff(['-ss', '3.6', '-i', bruto, '-frames:v', '1', 'poster.png']);
+  await sharp(join(saida, 'poster.png')).webp({ quality: 82 }).toFile(join(site, 'public/media/poster.webp'));
+  const ts = (s) => { const m = Math.floor(s / 60), x = (s % 60).toFixed(3).padStart(6, '0'); return `00:${String(m).padStart(2, '0')}:${x}`; };
+  const vtt = ['WEBVTT', ''];
+  for (const c of tempos.cenas) {
+    const ini = c.vozEm / tempos.fps;
+    vtt.push(`${ts(ini)} --> ${ts(ini + c.fala)}`, c.legenda, '');
+  }
+  writeFileSync(join(site, 'public/media/legendas.vtt'), vtt.join('\n'), 'utf8');
 }
-writeFileSync(join(site, 'public/media/legendas.vtt'), vtt.join('\n'), 'utf8');
 
 if (!process.argv.includes('--so-demo') && !process.argv.includes('--emendar-intro')) {
-  remotion('Vertical', join(saida, 'vertical-bruto.mp4'));
-  montar(join(saida, 'vertical-bruto.mp4'), join(redes, 'jr-vertical-9x16.mp4'), 900);
+  if (!SO_TEASER) {
+    remotion('Vertical', join(saida, 'vertical-bruto.mp4'));
+    montar(join(saida, 'vertical-bruto.mp4'), join(redes, 'jr-vertical-9x16.mp4'), 900);
+  }
   // teaser: so musica (sem narracao), 15 s
   remotion('Teaser', join(saida, 'teaser-bruto.mp4'));
   execFileSync(process.execPath, [join(aqui, 'musica.mjs'), '15', join(saida, 'musica-teaser.wav'), '2.75,7.25,11.25'], { stdio: 'inherit' });
