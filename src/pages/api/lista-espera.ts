@@ -21,8 +21,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   try { dados = await request.formData(); } catch { return resp(400, { erro: 'formato' }); }
 
   // Robos: campo escondido preenchido ou envio rapido demais (menos de 3 s depois de abrir a pagina).
+  // Responde erro, nunca sucesso: se for uma pessoa (ex.: preenchimento automatico), a tela oferece o WhatsApp
+  // em vez de dizer "pronto" sem ter gravado.
   const t = Number(dados.get('t'));
-  if (texto(dados.get('site'), 10) || !t || Date.now() - t < 3000) return resp(200, { ok: true });
+  if (texto(dados.get('confirmacao_interna'), 10) || !t || Date.now() - t < 3000) {
+    console.warn('lista_espera: envio bloqueado pela checagem anti-robo');
+    return resp(422, { erro: 'verificacao' });
+  }
 
   const ip = clientAddress ?? 'x';
   const agora = Date.now();
