@@ -61,5 +61,40 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     console.error('lista_espera', r.status, await r.text());
     return resp(502, { erro: 'falha ao gravar' });
   }
+  await avisar(registro);
   return resp(201, { ok: true });
 };
+
+// Avisa por e-mail que chegou inscricao (Resend). Variaveis: RESEND_API_KEY e NOTIFICA_EMAIL.
+// A inscricao ja esta gravada: se o aviso falhar, so registra no log, sem afetar quem preencheu.
+async function avisar(r: { nome: string; email: string; whatsapp: string | null; perfil: string; desafio: string | null; origem: string }) {
+  const chave = import.meta.env.RESEND_API_KEY ?? process.env.RESEND_API_KEY;
+  const para = import.meta.env.NOTIFICA_EMAIL ?? process.env.NOTIFICA_EMAIL;
+  if (!chave || !para) return;
+  try {
+    const envio = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${chave}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        from: 'JR! Site <onboarding@resend.dev>', // remetente de teste do Resend: so entrega para o e-mail da propria conta
+        to: [para],
+        reply_to: r.email,
+        subject: `Novo interessado no JR!: ${r.nome.replace(/\s+/g, ' ')}`,
+        text: [
+          `Nome: ${r.nome}`,
+          `E-mail: ${r.email}`,
+          `WhatsApp: ${r.whatsapp ?? 'não informado'}`,
+          `Perfil: ${r.perfil}`,
+          `Desafio: ${r.desafio ?? 'não informado'}`,
+          `Origem: ${r.origem}`,
+          '',
+          'Responda este e-mail para falar direto com a pessoa. Todos os inscritos ficam em Supabase > Table Editor > lista_espera.',
+        ].join('\n'),
+      }),
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!envio.ok) console.error('aviso por e-mail', envio.status, await envio.text());
+  } catch (e) {
+    console.error('aviso por e-mail', e);
+  }
+}
