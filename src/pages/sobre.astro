@@ -1,0 +1,57 @@
+---
+import Base from '../layouts/Base.astro';
+import Icone from '../components/Icone.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { LINKEDIN } from '../data/site';
+import { autor } from '../lib/schema';
+
+const principios = [
+  { i: 'users', t: 'Relacionamento primeiro', d: 'Pessoa não é linha de planilha. O termômetro mede a relação, não só a etapa.' },
+  { i: 'check', t: 'Você no comando', d: 'A IA e a extensão sugerem. Quem decide e envia é sempre uma pessoa.' },
+  { i: 'route', t: 'O próximo passo sempre claro', d: 'Cada evento cria a tarefa seguinte. Ninguém precisa lembrar de tudo.' },
+  { i: 'eye', t: 'Honestidade', d: 'Sem promessas mágicas, sem números inventados e sem automação que coloque a sua conta em risco.' },
+] as const;
+---
+<Base
+  titulo="Sobre o JR! — a história de um CRM criado por quem faz pré-vendas"
+  descricao="O JR! foi criado por Junior Pereira, profissional de pré-vendas PJ que atende vários clientes e prospecta por social selling. Conheça a história e os princípios do produto."
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Sobre', href: '/sobre/' }]}
+  schema={[{ ...autor(), description: 'Profissional de pré-vendas (PJ), atende vários clientes prospectando por social selling. Criador do JR! – Just Relationship CRM.' }]}
+>
+  <section class="pg-hero curto">
+    <div class="fundo-grade" aria-hidden="true"></div>
+    <div class="container sobre-topo">
+      <div class="avatar grande" aria-hidden="true">JP<span>!</span></div>
+      <div>
+        <p class="eyebrow">Quem criou</p>
+        <h1>Feito por quem prospecta todos os dias.</h1>
+        <p class="lead">Junior Pereira · Pré-vendas · <a class="link" href={LINKEDIN} target="_blank" rel="noopener">LinkedIn</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pt0">
+    <div class="container prosa">
+      <h2>De onde veio o JR!</h2>
+      <p>Eu trabalho com pré-vendas como PJ e atendo vários clientes ao mesmo tempo. Meu dia é feito de social selling: conectar com as pessoas certas no LinkedIn, puxar conversa com relevância, seguir por e-mail e WhatsApp e, quando a relação está madura, marcar uma reunião no Meet ou no Teams.</p>
+      <p>As ferramentas que eu tinha não acompanhavam essa rotina. A planilha não lembrava de ninguém. Os CRMs tradicionais tratavam cada pessoa como uma linha de pipeline e não sabiam lidar com vários clientes ao mesmo tempo. O follow-up se perdia, o relatório de sexta-feira tomava a tarde e eu nunca tinha certeza de quem merecia atenção primeiro.</p>
+      <p>Então eu construí a ferramenta que eu queria usar. O JR!, de <b>Just Relationship</b>, mede a temperatura de cada relação, cria o próximo passo a partir do que acontece de verdade e escreve as mensagens com o contexto de cada cliente. E, desde o primeiro dia, eu uso o JR! na minha própria prospecção.</p>
+      <h2>Por que "Relacionamento desde o 1º contato"</h2>
+      <p>Porque é o que fecha negócio. Nenhuma automação substitui alguém que entendeu o momento da outra pessoa. O papel do JR! é tirar o trabalho repetitivo do caminho para sobrar tempo para isso.</p>
+      <h2>O que vem agora</h2>
+      <p>O JR! está abrindo as primeiras vagas para <a href="/fundadores/">clientes fundadores</a>: pessoas e empresas que vendem por relacionamento e querem ajudar a definir as próximas versões. Se é o seu caso, vou adorar conversar.</p>
+    </div>
+  </section>
+
+  <section class="sec-alt">
+    <div class="container">
+      <div class="sec-cabeca"><p class="eyebrow">Princípios</p><h2>O que guia cada decisão do produto</h2></div>
+      <div class="grade g4">
+        {principios.map((p) => (
+          <article class="cartao"><div class="icone"><Icone nome={p.i} /></div><h3>{p.t}</h3><p>{p.d}</p></article>
+        ))}
+      </div>
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

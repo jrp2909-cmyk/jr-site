@@ -1,0 +1,91 @@
+---
+// Assistente simulado: perguntas prontas com respostas roteirizadas (dados ficticios).
+const perguntas = [
+  { id: 'quentes', q: 'Quais são as 3 empresas mais quentes?' },
+  { id: 'hoje', q: 'O que eu faço hoje?' },
+  { id: 'semana', q: 'Como foi a minha semana?' },
+  { id: 'termo', q: 'Como o termômetro sobe?' },
+];
+---
+<div class="asd" data-asd>
+  <div class="asd-topo">
+    <span class="asd-logo" aria-hidden="true">!</span>
+    <div><b>Assistente do JR!</b><small>Só lê seus dados. Nunca altera nada.</small></div>
+  </div>
+  <div class="asd-chat" data-chat aria-live="polite">
+    <div class="msg ia"><p>Oi! Pergunte sobre os seus leads, tarefas e resultados, ou sobre como usar o JR!.</p></div>
+  </div>
+  <div class="asd-perg" role="group" aria-label="Perguntas de exemplo">
+    {perguntas.map((p) => <button type="button" data-q={p.id}>{p.q}</button>)}
+  </div>
+  <p class="asd-nota">Demonstração com dados fictícios.</p>
+</div>
+
+<template id="asd-quentes">
+  <p>Estas são as mais quentes no projeto <b>Órbita Cloud</b>:</p>
+  <table class="mini">
+    <thead><tr><th>Empresa</th><th>Termômetro</th><th>Próximo passo</th></tr></thead>
+    <tbody>
+      <tr><td>Nexo Engenharia</td><td><span class="dia-temp" data-faixa="Quente">Quente · 64°</span></td><td>Propor a apresentação</td></tr>
+      <tr><td>Rota 66 Transportes</td><td><span class="dia-temp" data-faixa="Quente">Quente · 61°</span></td><td>Propor um café</td></tr>
+      <tr><td>Lótus Bem-estar</td><td><span class="dia-temp" data-faixa="Aquecendo">Aquecendo · 48°</span></td><td>Responder sobre integrações</td></tr>
+    </tbody>
+  </table>
+  <p>A dor da Nexo já está mapeada: retrabalho entre financeiro e comercial. Bom momento para marcar a apresentação.</p>
+</template>
+<template id="asd-hoje">
+  <p>Você tem <b>7 tarefas</b> hoje, <b>2</b> delas atrasadas. Comece por estas:</p>
+  <ol class="mini-lista">
+    <li><b>Atrasada</b> · Conectar com Marina Costa (Vértice). Ela publicou sobre o fechamento do mês.</li>
+    <li><b>Atrasada</b> · Follow-up por e-mail com a Lótus sobre integrações.</li>
+    <li><b>Hoje</b> · Comentar o post novo de Paula Ribeiro (Nexo). O Radar sugeriu um ângulo.</li>
+    <li><b>Hoje</b> · Pedir o WhatsApp do decisor da Rota 66.</li>
+  </ol>
+</template>
+<template id="asd-semana">
+  <p>Semana no projeto Órbita Cloud:</p>
+  <table class="mini">
+    <tbody>
+      <tr><td>Toques enviados</td><td><b>46</b> de 50 da meta</td></tr>
+      <tr><td>Conexões aceitas</td><td><b>9</b></td></tr>
+      <tr><td>Respostas</td><td><b>5</b></td></tr>
+      <tr><td>Apresentações</td><td><b>2</b> agendadas, 1 realizada</td></tr>
+    </tbody>
+  </table>
+  <p>Faltam 4 toques para a meta. Quer o relatório da semana em PDF?</p>
+</template>
+<template id="asd-termo">
+  <p>O termômetro vai de 0 a 100. A <b>Prospecção</b> vale até 40 pontos (dados de contato e conexão aceita) e a <b>Qualificação</b> vale até 60 (resposta, dor mapeada, 3 canais, decisores, compromisso e apresentação).</p>
+  <p>Cada degrau novo vira uma vitória no painel. Clique numa faixa, como “Quente”, e o funil, as tarefas e o radar mostram só aquelas empresas.</p>
+</template>
+
+<script>
+  const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  for (const raiz of document.querySelectorAll<HTMLElement>('[data-asd]')) {
+    const chat = raiz.querySelector<HTMLElement>('[data-chat]')!;
+    const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let ocupado = false;
+    const rola = () => chat.scrollTo({ top: chat.scrollHeight, behavior: reduz ? 'auto' : 'smooth' });
+    raiz.querySelectorAll<HTMLButtonElement>('[data-q]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        if (ocupado) return;
+        ocupado = true;
+        const eu = document.createElement('div');
+        eu.className = 'msg eu';
+        eu.innerHTML = '<p></p>';
+        eu.firstElementChild!.textContent = b.textContent;
+        chat.appendChild(eu);
+        const pensando = document.createElement('div');
+        pensando.className = 'msg ia pensando';
+        pensando.innerHTML = '<p><i></i><i></i><i></i><span class="sr">Consultando os dados</span></p>';
+        chat.appendChild(pensando); rola();
+        await espera(reduz ? 200 : 1100);
+        const tpl = document.getElementById(`asd-${b.dataset.q}`) as HTMLTemplateElement;
+        pensando.classList.remove('pensando');
+        pensando.replaceChildren(tpl.content.cloneNode(true));
+        rola();
+        ocupado = false;
+      }),
+    );
+  }
+</script>

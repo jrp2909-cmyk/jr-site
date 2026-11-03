@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Shot from '../../components/Shot.astro';
+import Icone from '../../components/Icone.astro';
+import CtaFinal from '../../components/CtaFinal.astro';
+import { NOTA } from '../../data/site';
+import { software } from '../../lib/schema';
+
+const funcs = (await getCollection('funcionalidades')).sort((a, b) => a.data.ordem - b.data.ordem);
+const descricao = 'Termômetro de relacionamento, funil automático, IA com o contexto do cliente, radar do LinkedIn, cadências multicanal, assistente e relatórios: conheça as funcionalidades do JR!.';
+---
+<Base
+  titulo="Funcionalidades do JR! — CRM de social selling com IA"
+  descricao={descricao}
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Funcionalidades', href: '/funcionalidades/' }]}
+  schema={[software(descricao, '/funcionalidades/')]}
+>
+  <section class="pg-hero curto">
+    <div class="fundo-grade" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow">Funcionalidades</p>
+      <h1>Tudo o que a rotina de social selling pede, num só lugar.</h1>
+      <p class="lead">Do primeiro dado de contato à apresentação realizada: o JR! mede a relação, sugere o próximo passo e escreve com você. Você continua no comando.</p>
+    </div>
+  </section>
+  <section class="pt0">
+    <div class="container lista-func">
+      {funcs.map((f, k) => (
+        <a class:list={['lf-item', 'brilho', { inverte: k % 2 === 1 }]} href={`/funcionalidades/${f.id}/`}>
+          <div class="lf-txt">
+            <span class="icone"><Icone nome={f.data.icone as any} /></span>
+            <h2>{f.data.nome}</h2>
+            <p>{f.data.descricao}</p>
+            <span class="link-seta">Ver em detalhes <Icone nome="arrow" /></span>
+          </div>
+          <div class:list={['lf-img', { recorte: f.data.recorte }]}>
+            <Shot src={f.data.imagem} alt={f.data.imagemAlt} widths={[480, 768, 1100]} sizes="(min-width: 1000px) 560px, 100vw" />
+          </div>
+        </a>
+      ))}
+      <p class="nota-ficticia">{NOTA}</p>
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

@@ -1,0 +1,47 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import logo from '../assets/brand/logo-compact.png';
+import { LINKEDIN, NOTA, WHATS, WHATS_TXT } from '../data/site';
+
+const funcs = (await getCollection('funcionalidades')).sort((a, b) => a.data.ordem - b.data.ordem);
+const publicos = (await getCollection('para')).sort((a, b) => a.data.ordem - b.data.ordem);
+---
+<footer class="rodape">
+  <div class="container">
+    <div class="rodape-grade">
+      <div class="rodape-marca">
+        <a class="logo-link" href="/" aria-label="JR! – página inicial"><Image src={logo} alt="JR!" height={68} /></a>
+        <p>CRM de social selling que transforma conexões em reuniões. Relacionamento desde o 1º contato.</p>
+        <a class="btn btn-primario btn-p" href="/fundadores/">Seja um cliente fundador</a>
+      </div>
+      <nav aria-label="Funcionalidades">
+        <p class="rodape-tit">Funcionalidades</p>
+        <ul>{funcs.map((f) => <li><a href={`/funcionalidades/${f.id}/`}>{f.data.nome}</a></li>)}</ul>
+      </nav>
+      <nav aria-label="Para quem">
+        <p class="rodape-tit">Para quem</p>
+        <ul>
+          {publicos.map((p) => <li><a href={`/para/${p.id}/`}>{p.data.nome}</a></li>)}
+          <li><a href="/comparar/crm-vs-planilha/">CRM ou planilha?</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Institucional">
+        <p class="rodape-tit">JR!</p>
+        <ul>
+          <li><a href="/blog/">Conteúdo</a></li>
+          <li><a href="/glossario/">Glossário de social selling</a></li>
+          <li><a href="/sobre/">Quem criou</a></li>
+          <li><a href="/seguranca/">Segurança</a></li>
+          <li><a href="/privacidade/">Privacidade</a></li>
+          <li><a href={WHATS} target="_blank" rel="noopener">WhatsApp {WHATS_TXT}</a></li>
+          <li><a href={LINKEDIN} target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="rodape-base">
+      <p>JR! – Just Relationship CRM · © {new Date().getFullYear()} Junior Pereira</p>
+      <p>{NOTA} Este site não usa cookies nem rastreadores.</p>
+    </div>
+  </div>
+</footer>

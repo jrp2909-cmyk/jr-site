@@ -1,0 +1,93 @@
+---
+// Termometro interativo com a mesma regra do produto: 13 passos, 40 pts de prospeccao + 60 de qualificacao.
+import { CRITERIOS, FAIXAS, faixaDe } from '../../data/site';
+const inicial = 5; // os 5 dados de contato ja marcados
+const notaIni = CRITERIOS.slice(0, inicial).reduce((s, c) => s + c.pts, 0);
+const etapas = ['Prospecção', 'Qualificação'] as const;
+---
+<div class="tj" data-tj>
+  <div class="tj-mostrador">
+    <svg viewBox="0 0 220 130" class="tj-arco" aria-hidden="true">
+      <defs>
+        <linearGradient id="tj-grad" x1="0" x2="1">
+          <stop offset="0" stop-color="#38bdf8" /><stop offset=".35" stop-color="#fbbf24" />
+          <stop offset=".6" stop-color="#fb923c" /><stop offset=".8" stop-color="#ef4444" /><stop offset="1" stop-color="#e11d48" />
+        </linearGradient>
+      </defs>
+      <path d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#1c2840" stroke-width="16" stroke-linecap="round" />
+      <path data-arco d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="url(#tj-grad)" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray={`${notaIni} 100`} />
+    </svg>
+    <div class="tj-nota" aria-live="polite">
+      <b data-nota>{notaIni}</b><span>/100</span>
+      <p class="tj-faixa" data-faixa={faixaDe(notaIni).key}>{faixaDe(notaIni).label}</p>
+    </div>
+    <ul class="tj-faixas" aria-label="Faixas do termômetro">
+      {FAIXAS.map((f) => <li><i style={`background:${f.cor}`}></i>{f.label}<small>{f.min}+</small></li>)}
+    </ul>
+    <div class="tj-sugestao">
+      <span class="vivo-rot">O JR! sugere agora</span>
+      <p data-sugestao>Conectar com o lead no LinkedIn. A conexão aceita vale +15 e dispara a cadência.</p>
+    </div>
+    <p class="tj-vitoria" data-vitoria role="status"></p>
+  </div>
+  <div class="tj-lista">
+    {etapas.map((et) => (
+      <fieldset>
+        <legend>{et} <small>{et === 'Prospecção' ? 'até 40 pts' : 'até 60 pts'}</small></legend>
+        {CRITERIOS.map((c, k) => c.etapa === et && (
+          <label>
+            <input type="checkbox" value={c.pts} data-k={k} checked={k < inicial} />
+            <span>{c.label}</span>
+            <b>+{c.pts}</b>
+          </label>
+        ))}
+      </fieldset>
+    ))}
+  </div>
+</div>
+
+<script>
+  const FAIXAS = [['gelado', 'Gelado', 0], ['morno', 'Morno', 20], ['aquecendo', 'Aquecendo', 40], ['quente', 'Quente', 60], ['em_brasa', 'Em brasa', 85]] as const;
+  const DICAS: Record<number, string> = {
+    0: 'Cadastrar o perfil do lead no LinkedIn.',
+    1: 'Encontrar o e-mail corporativo do lead.',
+    2: 'Encontrar o WhatsApp: é o canal mais rápido depois da conversa começar.',
+    3: 'Adicionar o site da empresa. A IA usa o site para entender o negócio.',
+    4: 'Adicionar a página da empresa no LinkedIn.',
+    5: 'Conectar com o lead no LinkedIn. A conexão aceita vale +15 e dispara a cadência.',
+    6: 'Registrar a primeira resposta. A IA escreve o próximo toque com o histórico.',
+    7: 'Mapear a 1ª dor. Ela entra no contexto de todas as mensagens seguintes.',
+    8: 'Falar por um 3º canal (e-mail, WhatsApp ou reunião).',
+    9: 'Mapear os demais decisores. O JR! sugere os cargos a procurar.',
+    10: 'Marcar um café ou uma call rápida.',
+    11: 'Agendar a apresentação no Meet ou no Teams.',
+    12: 'Realizar a apresentação e mandar o resumo.',
+  };
+  const faixa = (n: number) => [...FAIXAS].reverse().find((f) => n >= f[2])!;
+
+  for (const raiz of document.querySelectorAll<HTMLElement>('[data-tj]')) {
+    const caixas = [...raiz.querySelectorAll<HTMLInputElement>('input[type=checkbox]')];
+    const nota = raiz.querySelector<HTMLElement>('[data-nota]')!;
+    const fx = raiz.querySelector<HTMLElement>('[data-faixa]')!;
+    const arco = raiz.querySelector<SVGPathElement>('[data-arco]')!;
+    const sug = raiz.querySelector<HTMLElement>('[data-sugestao]')!;
+    const vit = raiz.querySelector<HTMLElement>('[data-vitoria]')!;
+    let anterior = faixa(Number(nota.textContent))[2];
+    const atualiza = () => {
+      const n = caixas.reduce((s, c) => s + (c.checked ? Number(c.value) : 0), 0);
+      const f = faixa(n);
+      nota.textContent = String(n);
+      fx.textContent = f[1];
+      fx.dataset.faixa = f[0];
+      arco.setAttribute('stroke-dasharray', `${n} 100`);
+      const falta = caixas.find((c) => !c.checked);
+      sug.textContent = falta ? DICAS[Number(falta.dataset.k)] : 'Tudo conquistado. Hora de fechar e comemorar!';
+      if (f[2] > anterior) {
+        vit.textContent = `Vitória: subiu para ${f[1]}!`;
+        vit.classList.remove('on'); void vit.offsetWidth; vit.classList.add('on');
+      }
+      anterior = f[2];
+    };
+    caixas.forEach((c) => c.addEventListener('change', atualiza));
+  }
+</script>

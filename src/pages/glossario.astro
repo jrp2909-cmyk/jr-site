@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { TERMOS } from '../data/glossario';
+import { SITE } from '../lib/schema';
+
+import { postsPublicados } from '../lib/blog';
+
+// Links para artigos ainda em rascunho somem ate o artigo ser publicado.
+const publicados = new Set((await postsPublicados()).map((p) => `/blog/${p.id}/`));
+const termos = [...TERMOS]
+  .map((t) => (t.link?.href.startsWith('/blog/') && !publicados.has(t.link.href) ? { ...t, link: undefined } : t))
+  .sort((a, b) => a.termo.localeCompare(b.termo, 'pt-BR'));
+const conjunto = {
+  '@type': 'DefinedTermSet',
+  name: 'Glossário de social selling e prospecção',
+  url: `${SITE}/glossario/`,
+  hasDefinedTerm: termos.map((t) => ({ '@type': 'DefinedTerm', name: t.termo, description: t.def, url: `${SITE}/glossario/#${t.id}` })),
+};
+---
+<Base
+  titulo="Glossário de social selling e prospecção B2B | JR!"
+  descricao="O que é social selling, SDR, BDR, ICP, cadência, follow-up, lead scoring, SSI e outros termos de prospecção B2B, explicados de forma simples."
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Glossário', href: '/glossario/' }]}
+  schema={[conjunto]}
+>
+  <section class="pg-hero curto">
+    <div class="fundo-grade" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow">Glossário</p>
+      <h1>Glossário de social selling e prospecção</h1>
+      <p class="lead">Os termos que aparecem na rotina de pré-vendas, explicados sem jargão.</p>
+      <nav class="glo-indice" aria-label="Termos">
+        {termos.map((t) => <a href={`#${t.id}`}>{t.termo.split(' (')[0]}</a>)}
+      </nav>
+    </div>
+  </section>
+  <section class="pt0">
+    <div class="container glo">
+      <dl>
+        {termos.map((t) => (
+          <div class="glo-item" id={t.id}>
+            <dt>{t.termo}</dt>
+            <dd>
+              <p>{t.def}</p>
+              {t.link && <a class="link-seta" href={t.link.href}>{t.link.txt} →</a>}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

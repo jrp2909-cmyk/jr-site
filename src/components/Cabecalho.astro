@@ -1,0 +1,92 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import Icone from './Icone.astro';
+import logo from '../assets/brand/logo-compact.png';
+
+const funcs = (await getCollection('funcionalidades')).sort((a, b) => a.data.ordem - b.data.ordem);
+const publicos = (await getCollection('para')).sort((a, b) => a.data.ordem - b.data.ordem);
+const atual = Astro.url.pathname;
+const ativo = (base: string) => (atual.startsWith(base) ? 'page' : undefined);
+---
+<header class="topo">
+  <div class="container topo-in">
+    <a class="logo-link" href="/" aria-label="JR! – Just Relationship CRM, página inicial">
+      <Image src={logo} alt="JR!" height={76} loading="eager" />
+    </a>
+
+    <nav class="nav" aria-label="Principal">
+      <div class="nav-grupo">
+        <a href="/funcionalidades/" aria-current={ativo('/funcionalidades/')}>Funcionalidades <Icone nome="chevron" class="seta" /></a>
+        <div class="submenu submenu-largo">
+          {funcs.map((f) => (
+            <a href={`/funcionalidades/${f.id}/`}>
+              <span class="sm-ic"><Icone nome={f.data.icone as any} /></span>
+              <span><b>{f.data.nome}</b><small>{f.data.resumo}</small></span>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div class="nav-grupo">
+        <a href="/para/" aria-current={ativo('/para/')}>Para quem <Icone nome="chevron" class="seta" /></a>
+        <div class="submenu">
+          {publicos.map((p) => (
+            <a href={`/para/${p.id}/`}>
+              <span class="sm-ic"><Icone nome={p.data.icone as any} /></span>
+              <span><b>{p.data.nome}</b><small>{p.data.resumo}</small></span>
+            </a>
+          ))}
+          <a href="/comparar/crm-vs-planilha/">
+            <span class="sm-ic"><Icone nome="table" /></span>
+            <span><b>CRM ou planilha?</b><small>Comparativo honesto</small></span>
+          </a>
+        </div>
+      </div>
+      <a href="/#teste">Teste o JR!</a>
+      <a href="/blog/" aria-current={ativo('/blog/') || ativo('/glossario/')}>Conteúdo</a>
+      <a href="/sobre/" aria-current={ativo('/sobre/')}>Sobre</a>
+      <a class="btn btn-primario" href="/fundadores/">Seja fundador</a>
+    </nav>
+
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-movel" aria-label="Abrir menu">
+      <Icone nome="menu" class="ic-abrir" /><Icone nome="x" class="ic-fechar" />
+    </button>
+  </div>
+
+  <div class="menu-movel" id="menu-movel" hidden>
+    <div class="container">
+      <p class="mm-titulo">Funcionalidades</p>
+      <div class="mm-grade">
+        {funcs.map((f) => <a href={`/funcionalidades/${f.id}/`}><Icone nome={f.data.icone as any} />{f.data.nome}</a>)}
+      </div>
+      <p class="mm-titulo">Para quem</p>
+      <div class="mm-grade">
+        {publicos.map((p) => <a href={`/para/${p.id}/`}><Icone nome={p.data.icone as any} />{p.data.nome}</a>)}
+      </div>
+      <div class="mm-links">
+        <a href="/#teste">Teste o JR!</a>
+        <a href="/blog/">Conteúdo</a>
+        <a href="/glossario/">Glossário</a>
+        <a href="/seguranca/">Segurança</a>
+        <a href="/sobre/">Sobre</a>
+      </div>
+      <a class="btn btn-primario mm-cta" href="/fundadores/">Seja um cliente fundador</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.menu-btn');
+  const painel = document.getElementById('menu-movel');
+  if (btn && painel) {
+    const alterna = (abrir: boolean) => {
+      btn.setAttribute('aria-expanded', String(abrir));
+      btn.setAttribute('aria-label', abrir ? 'Fechar menu' : 'Abrir menu');
+      painel.hidden = !abrir;
+      document.body.classList.toggle('menu-aberto', abrir);
+    };
+    btn.addEventListener('click', () => alterna(btn.getAttribute('aria-expanded') !== 'true'));
+    painel.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) alterna(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') alterna(false); });
+  }
+</script>

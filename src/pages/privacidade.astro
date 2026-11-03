@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import { WHATS, WHATS_TXT } from '../data/site';
+---
+<Base
+  titulo="Política de privacidade — JR! CRM"
+  descricao="Como o site do JR! trata os dados enviados pelo formulário de clientes fundadores, de acordo com a LGPD."
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Privacidade', href: '/privacidade/' }]}
+>
+  <section class="pg-hero curto">
+    <div class="container">
+      <p class="eyebrow">Privacidade</p>
+      <h1>Política de privacidade do site</h1>
+      <p class="lead">Atualizada em 2 de novembro de 2026.</p>
+    </div>
+  </section>
+  <section class="pt0">
+    <div class="container prosa">
+      <h2>Quem é o responsável</h2>
+      <p>Este site (www.jrcrm.com.br) apresenta o JR! – Just Relationship CRM, criado por Junior Pereira, que é o responsável (controlador) pelos dados aqui coletados. Contato: WhatsApp <a href={WHATS} target="_blank" rel="noopener">{WHATS_TXT}</a>.</p>
+
+      <h2>O que coletamos</h2>
+      <p>Só coletamos dados quando você preenche o formulário de clientes fundadores: nome, e-mail, perfil profissional e, se você quiser, WhatsApp e uma descrição do seu desafio na prospecção. Registramos também a data do envio e a página de origem.</p>
+      <p>O site <b>não usa cookies, não usa ferramentas de análise de visitas e não tem rastreadores de publicidade</b>. Como todo site, o servidor de hospedagem pode registrar dados técnicos de acesso (como endereço IP) por segurança e por prazo limitado.</p>
+
+      <h2>Para que usamos</h2>
+      <ul>
+        <li>Entrar em contato com você sobre o JR! e o programa de clientes fundadores.</li>
+        <li>Entender o perfil de quem se interessa pelo JR!, para priorizar as próximas versões.</li>
+      </ul>
+      <p>A base legal é o seu consentimento, dado ao marcar a caixa do formulário. Não vendemos nem compartilhamos os seus dados para marketing de terceiros.</p>
+
+      <h2>Onde ficam e por quanto tempo</h2>
+      <p>Os dados ficam em banco de dados na nuvem (Supabase), com acesso restrito ao responsável, e o site é hospedado na Vercel. Esses fornecedores podem processar dados fora do Brasil, com as proteções previstas na LGPD. Guardamos os dados enquanto houver interesse na conversa ou até você pedir a exclusão.</p>
+
+      <h2>Seus direitos</h2>
+      <p>Você pode, a qualquer momento, pedir acesso, correção ou exclusão dos seus dados, ou retirar o consentimento. Basta mandar uma mensagem pelo WhatsApp acima. Respondemos o quanto antes.</p>
+
+      <h2>Mudanças nesta política</h2>
+      <p>Se esta política mudar, a data no topo da página será atualizada.</p>
+    </div>
+  </section>
+</Base>

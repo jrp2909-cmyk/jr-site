@@ -1,0 +1,22 @@
+---
+import Icone from './Icone.astro';
+import { whats } from '../data/site';
+interface Props { titulo?: string; texto?: string; mensagem?: string; }
+const {
+  titulo = 'Relacionamento é o que fecha negócio.',
+  texto = 'O JR! está abrindo as primeiras vagas de clientes fundadores: acesso antecipado, condição especial e conversa direta com quem criou.',
+  mensagem,
+} = Astro.props;
+---
+<section class="cta-final">
+  <div class="container">
+    <p class="eyebrow">Clientes fundadores</p>
+    <h2>{titulo}</h2>
+    <p class="lead">{texto}</p>
+    <div class="cta-acoes">
+      <a class="btn btn-primario" href="/fundadores/">Quero ser fundador <Icone nome="arrow" /></a>
+      <a class="btn btn-sec" href={whats(mensagem)} target="_blank" rel="noopener"><Icone nome="whats" /> Falar no WhatsApp</a>
+    </div>
+    <p class="cta-sub">Você fala direto com o criador. Sem robô, sem compromisso.</p>
+  </div>
+</section>

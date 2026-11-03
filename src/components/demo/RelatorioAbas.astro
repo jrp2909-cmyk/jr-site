@@ -1,0 +1,54 @@
+---
+// Tres niveis de relatorio em abas acessiveis (setas do teclado trocam a aba).
+import Shot from '../Shot.astro';
+import relSimples from '../../assets/desktop/rel-simples-topo.png';
+import relMedio from '../../assets/desktop/rel-medio-topo.png';
+import relDetalhado from '../../assets/desktop/rel-detalhado-topo.png';
+
+const abas = [
+  { id: 'simples', nome: 'Simplificado', para: 'Para CEOs', d: 'Uma página, direto ao ponto: o que foi feito, quem está quente e o que vem a seguir.', img: relSimples, alt: 'Relatório simplificado de prospecção' },
+  { id: 'medio', nome: 'Médio', para: 'Para gestores comerciais', d: 'Evolução semanal, termômetro, canais que funcionam e reuniões do período.', img: relMedio, alt: 'Relatório médio com gráficos e empresas mais engajadas' },
+  { id: 'detalhado', nome: 'Detalhado', para: 'Para quem acompanha de perto', d: 'Funil completo, conexões, dores mapeadas e próximos passos por empresa.', img: relDetalhado, alt: 'Relatório detalhado com funil, conexões, dores e próximos passos' },
+];
+---
+<div class="rabas" data-rabas>
+  <div class="rabas-lista" role="tablist" aria-label="Níveis de relatório">
+    {abas.map((a, k) => (
+      <button type="button" role="tab" id={`tab-${a.id}`} aria-controls={`pn-${a.id}`} aria-selected={k === 0 ? 'true' : 'false'} tabindex={k === 0 ? 0 : -1}>
+        <span class="tag">{a.nome}</span>
+        <b>{a.para}</b>
+        <small>{a.d}</small>
+      </button>
+    ))}
+    <p class="rabas-obs">Em PDF ou em texto pronto para WhatsApp e e-mail. Os relatórios nunca mostram comissão.</p>
+  </div>
+  <div class="rabas-paineis">
+    {abas.map((a, k) => (
+      <div role="tabpanel" id={`pn-${a.id}`} aria-labelledby={`tab-${a.id}`} hidden={k !== 0} class="rabas-painel">
+        <div class="moldura papel"><Shot src={a.img} alt={a.alt} widths={[480, 768, 1100]} sizes="(min-width: 960px) 620px, 100vw" /></div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  for (const raiz of document.querySelectorAll<HTMLElement>('[data-rabas]')) {
+    const tabs = [...raiz.querySelectorAll<HTMLButtonElement>('[role=tab]')];
+    const ativa = (t: HTMLButtonElement, foco = false) => {
+      tabs.forEach((x) => {
+        const on = x === t;
+        x.setAttribute('aria-selected', String(on));
+        x.tabIndex = on ? 0 : -1;
+        document.getElementById(x.getAttribute('aria-controls')!)!.hidden = !on;
+      });
+      if (foco) t.focus();
+    };
+    tabs.forEach((t, k) => {
+      t.addEventListener('click', () => ativa(t));
+      t.addEventListener('keydown', (e) => {
+        const d = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0;
+        if (d) { e.preventDefault(); ativa(tabs[(k + d + tabs.length) % tabs.length], true); }
+      });
+    });
+  }
+</script>

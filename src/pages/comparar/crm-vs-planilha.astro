@@ -1,0 +1,71 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '../../components/Faq.astro';
+import CtaFinal from '../../components/CtaFinal.astro';
+import { faqPage } from '../../lib/schema';
+
+const linhas = [
+  ['Custo para começar', 'Zero', 'Assinatura, configuração e treinamento', 'Implantação guiada pelo criador (fundadores)'],
+  ['Lembrar do follow-up', 'Depende da sua memória', 'Lembretes que você cria à mão', 'Tarefas nascem sozinhas de cada evento'],
+  ['Funil atualizado', 'Só se alguém atualizar', 'Só se alguém arrastar o card', 'Card anda com conexão aceita e resposta'],
+  ['Prioridade do dia', 'Filtro manual', 'Lead scoring por e-mail e cliques', 'Termômetro de relacionamento de 0 a 100'],
+  ['Mensagens personalizadas', 'Do zero, toda vez', 'Modelos com campos de nome', 'IA com o contexto do cliente, 3 versões'],
+  ['Acompanhar o LinkedIn', 'Rolar o feed', 'Raramente previsto', 'Radar só leitura com sugestão de interação'],
+  ['Vários clientes', 'Uma aba ou arquivo por cliente', 'Pensado para uma empresa só', 'Projetos com contexto, funil e relatório próprios'],
+  ['Relatório para o cliente', 'Uma tarde de trabalho', 'Painéis que exigem configuração', 'Um clique, em PDF ou texto para WhatsApp'],
+];
+
+const faq = [
+  { q: 'Planilha ainda serve para prospecção?', a: 'Serve para começar e para listas pequenas. Quando a rotina passa a ter dezenas de conversas ao mesmo tempo, vários canais e follow-ups, a planilha deixa de lembrar por você e o risco de perder oportunidades cresce.' },
+  { q: 'O JR! substitui um CRM tradicional?', a: 'Para quem prospecta por social selling, sim: o JR! cobre da lista de contatos até a apresentação realizada e a venda ganha. Empresas com operações complexas de pós-venda podem usar o JR! na prospecção e outro sistema depois.' },
+  { q: 'Dá para trazer os dados da planilha?', a: 'Sim. Na implantação dos clientes fundadores, o Junior ajuda a importar as empresas e os leads que você já tem.' },
+];
+---
+<Base
+  titulo="CRM ou planilha para prospecção? Comparativo honesto | JR!"
+  descricao="Planilha, CRM tradicional ou CRM de social selling: o que cada um faz bem na prospecção B2B, quando a planilha deixa de dar conta e o que muda com o JR!."
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Comparativos', href: '/comparar/crm-vs-planilha/' }, { nome: 'CRM ou planilha', href: '/comparar/crm-vs-planilha/' }]}
+  schema={[faqPage(faq)]}
+>
+  <section class="pg-hero curto">
+    <div class="fundo-grade" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow">Comparativo</p>
+      <h1>CRM ou planilha para prospecção? Um comparativo honesto.</h1>
+      <p class="lead">A planilha é ótima para começar. Mas social selling é feito de muitas conversas paralelas, em vários canais, com o momento certo para cada toque. Veja onde cada opção brilha e onde ela falha.</p>
+    </div>
+  </section>
+  <section class="pt0">
+    <div class="container">
+      <div class="tabela-wrap">
+        <table class="tabela-comp">
+          <caption class="sr">Comparação entre planilha, CRM tradicional e o JR!</caption>
+          <thead><tr><th scope="col">Critério</th><th scope="col">Planilha</th><th scope="col">CRM tradicional</th><th scope="col" class="jr">JR!</th></tr></thead>
+          <tbody>
+            {linhas.map(([c, a, b, j]) => <tr><th scope="row">{c}</th><td>{a}</td><td>{b}</td><td class="jr">{j}</td></tr>)}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <section class="sec-alt">
+    <div class="container prosa">
+      <h2>Quando a planilha basta</h2>
+      <p>Se você conversa com poucas empresas por mês, usa um canal só e não precisa prestar contas a ninguém, a planilha resolve. Ela é gratuita, flexível e todo mundo sabe usar.</p>
+      <h2>Quando a planilha começa a custar caro</h2>
+      <p>O custo da planilha não aparece na fatura, aparece nas oportunidades perdidas. Os sinais mais comuns:</p>
+      <ul>
+        <li>Conexões aceitas que ficaram sem a primeira mensagem.</li>
+        <li>Follow-ups feitos fora de hora, ou feitos para quem já tinha respondido.</li>
+        <li>Dúvida sobre quem merece atenção hoje.</li>
+        <li>Uma tarde inteira para montar o relatório da semana.</li>
+        <li>Vários clientes ou campanhas misturados no mesmo arquivo.</li>
+      </ul>
+      <h2>CRM tradicional ou CRM de social selling?</h2>
+      <p>CRMs tradicionais foram desenhados em torno do pipeline: etapas, valores, previsões. São excelentes para gerir negociações já abertas. Na prospecção por relacionamento, porém, o trabalho acontece antes do pipeline: conectar, puxar conversa, esquentar. É aí que um CRM de social selling, como o JR!, faz diferença, porque mede a relação, cria o próximo passo a partir dos eventos e escreve com o contexto do cliente.</p>
+      <p>Quer ver na prática? <a href="/#teste">Teste a demonstração</a> ou conheça o <a href="/funcionalidades/termometro-de-relacionamento/">termômetro de relacionamento</a>.</p>
+    </div>
+  </section>
+  <Faq itens={faq} />
+  <CtaFinal />
+</Base>

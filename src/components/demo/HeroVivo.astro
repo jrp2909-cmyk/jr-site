@@ -1,0 +1,130 @@
+---
+// Mini-CRM animado do hero: eventos reais da relacao fazem o termometro subir, o card mudar de etapa
+// e a proxima tarefa nascer. Pontos seguem a regra do produto (prospeccao 25 + conexao 15 + qualificacao).
+// Sem JS (ou com movimento reduzido) mostra o estado inicial e o botao "Proximo evento" funciona.
+---
+<div class="vivo" data-vivo aria-label="Demonstração animada com dados fictícios: um lead esquentando no JR!" role="group">
+  <div class="vivo-barra" aria-hidden="true"><i></i><i></i><i></i><span>app · Órbita Cloud</span></div>
+  <div class="vivo-corpo">
+    <div class="vivo-card">
+      <div class="vivo-emp">
+        <span class="vivo-avatar" aria-hidden="true">VL</span>
+        <div>
+          <b>Vértice Logística</b>
+          <small>Marina Costa · Diretora Financeira</small>
+        </div>
+      </div>
+      <div class="vivo-etapas" aria-hidden="true">
+        <span data-etapa="0" class="on">Conexão pendente</span>
+        <span data-etapa="1">A abordar</span>
+        <span data-etapa="2">Em conversa</span>
+        <span data-etapa="3">Apresentação</span>
+      </div>
+      <div class="vivo-termo">
+        <div class="vivo-termo-topo">
+          <span>Termômetro</span>
+          <span class="vivo-faixa" data-faixa>Morno · <b data-nota>25</b>°</span>
+        </div>
+        <div class="vivo-trilho"><i data-ponteiro style="left:25%"></i></div>
+      </div>
+      <div class="vivo-tarefa">
+        <span class="vivo-rot">Próximo passo</span>
+        <p data-tarefa>Aguardar a conexão. O Radar avisa quando ela for aceita.</p>
+      </div>
+    </div>
+    <ol class="vivo-log" data-log aria-hidden="true">
+      <li class="vivo-log-tit"><span class="vivo-rot">Linha do tempo</span><small>Cada passo da relação vira pontos</small></li>
+      <li class="vivo-ev base"><span class="ev-ic">✓</span><span>Dados de contato completos</span><b>+25</b></li>
+    </ol>
+  </div>
+  <div class="vivo-toast" data-toast aria-hidden="true"></div>
+  <div class="vivo-ctrl">
+    <button type="button" data-pausa aria-pressed="false">Pausar</button>
+    <button type="button" data-proximo>Próximo evento</button>
+    <span>Dados fictícios</span>
+  </div>
+</div>
+
+<script>
+  type Ev = { t: string; p: number; etapa?: number; tarefa: string; vitoria?: string };
+  const EVENTOS: Ev[] = [
+    { t: 'Conexão aceita no LinkedIn', p: 15, etapa: 1, tarefa: 'Enviar boas-vindas: a IA já escreveu 3 versões com o contexto da Órbita Cloud.', vitoria: 'Conexão aceita! Hora de entrar na cadência.' },
+    { t: 'Respondeu à mensagem', p: 8, etapa: 2, tarefa: 'Mapear a 1ª dor. Pergunta sugerida: como é o fechamento do mês hoje?' },
+    { t: '1ª dor: retrabalho entre financeiro e comercial', p: 8, tarefa: 'Pedir o e-mail e seguir por mais um canal.' },
+    { t: '3 canais: LinkedIn, e-mail e WhatsApp', p: 8, tarefa: 'Propor um café ou uma call rápida.', vitoria: 'Subiu para Quente!' },
+    { t: 'Café marcado para quinta', p: 8, tarefa: 'Preparar o café: o Radar viu um post novo dela ontem.' },
+    { t: 'Apresentação agendada no Meet', p: 10, etapa: 3, tarefa: 'Enviar a pauta 1 dia antes (modelo pronto).' },
+    { t: 'Apresentação realizada', p: 10, tarefa: 'Mandar o resumo e os próximos passos (a IA rascunhou).', vitoria: 'Em brasa! Relação no ponto de fechar.' },
+  ];
+  const FAIXAS = [['Gelado', 0], ['Morno', 20], ['Aquecendo', 40], ['Quente', 60], ['Em brasa', 85]] as const;
+  const faixa = (n: number) => [...FAIXAS].reverse().find(([, m]) => n >= m)![0];
+
+  for (const raiz of document.querySelectorAll<HTMLElement>('[data-vivo]')) {
+    const $ = <T extends HTMLElement>(s: string) => raiz.querySelector<T>(s)!;
+    const nota = $('[data-nota]'), fx = $('[data-faixa]'), pont = $('[data-ponteiro]');
+    const tarefa = $('[data-tarefa]'), log = $('[data-log]'), toast = $('[data-toast]');
+    const btnPausa = $<HTMLButtonElement>('[data-pausa]'), btnProx = $<HTMLButtonElement>('[data-proximo]');
+    const etapas = [...raiz.querySelectorAll<HTMLElement>('[data-etapa]')];
+    const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let i = 0, n = 25, timer = 0, visivel = false, pausado = reduz;
+    const contar = (de: number, ate: number) => {
+      if (reduz) { nota.textContent = String(ate); return; }
+      const t0 = performance.now();
+      const passo = (t: number) => {
+        const k = Math.min(1, Math.max(0, (t - t0) / 700));
+        nota.textContent = String(Math.round(de + (ate - de) * (1 - (1 - k) ** 3)));
+        if (k < 1) requestAnimationFrame(passo);
+      };
+      requestAnimationFrame(passo);
+    };
+    const pinta = () => {
+      fx.firstChild!.textContent = faixa(n) + ' · ';
+      fx.dataset.faixa = faixa(n);
+      pont.style.left = n + '%';
+    };
+    const reinicia = () => {
+      i = 0; n = 25;
+      log.querySelectorAll('.vivo-ev:not(.base)').forEach((el) => el.remove());
+      etapas.forEach((e, k) => e.classList.toggle('on', k === 0));
+      tarefa.textContent = 'Aguardar a conexão. O Radar avisa quando ela for aceita.';
+      nota.textContent = '25'; pinta();
+    };
+    const avanca = () => {
+      if (i >= EVENTOS.length) { reinicia(); return; }
+      const ev = EVENTOS[i++];
+      const antes = n; n += ev.p;
+      const li = document.createElement('li');
+      li.className = 'vivo-ev';
+      li.innerHTML = `<span class="ev-ic">✓</span><span></span><b>+${ev.p}</b>`;
+      li.children[1].textContent = ev.t;
+      log.appendChild(li);
+      while (log.children.length > 6) log.children[2].remove(); // mantem titulo, base e os 4 ultimos
+      if (ev.etapa !== undefined) etapas.forEach((e, k) => e.classList.toggle('on', k === ev.etapa));
+      tarefa.classList.remove('nasce'); void tarefa.offsetWidth; tarefa.classList.add('nasce');
+      tarefa.textContent = ev.tarefa;
+      contar(antes, n); pinta();
+      if (ev.vitoria) {
+        toast.textContent = ev.vitoria;
+        toast.classList.add('on');
+        setTimeout(() => toast.classList.remove('on'), 2200);
+      }
+    };
+    const agenda = () => {
+      clearTimeout(timer);
+      if (pausado || !visivel) return;
+      timer = window.setTimeout(() => { avanca(); agenda(); }, i >= EVENTOS.length ? 4200 : 2300);
+    };
+    new IntersectionObserver(([e]) => { visivel = e.isIntersecting; agenda(); }, { threshold: 0.3 }).observe(raiz);
+    document.addEventListener('visibilitychange', () => { visivel = !document.hidden; agenda(); });
+    btnPausa.textContent = pausado ? 'Rodar' : 'Pausar';
+    btnPausa.setAttribute('aria-pressed', String(pausado));
+    btnPausa.addEventListener('click', () => {
+      pausado = !pausado;
+      btnPausa.textContent = pausado ? 'Rodar' : 'Pausar';
+      btnPausa.setAttribute('aria-pressed', String(pausado));
+      agenda();
+    });
+    btnProx.addEventListener('click', () => { avanca(); agenda(); });
+  }
+</script>

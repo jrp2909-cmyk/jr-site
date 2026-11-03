@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Icone from '../../components/Icone.astro';
+import CtaFinal from '../../components/CtaFinal.astro';
+
+const lista = (await getCollection('para')).sort((a, b) => a.data.ordem - b.data.ordem);
+---
+<Base
+  titulo="Para quem é o JR! — CRM para SDRs, gestores, CEOs e freelancers"
+  descricao="O JR! ajuda quem vende por relacionamento: SDRs e pré-vendas, gestores comerciais, CEOs e freelancers ou agências de prospecção que atendem vários clientes."
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Para quem', href: '/para/' }]}
+>
+  <section class="pg-hero curto">
+    <div class="fundo-grade" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow">Para quem é</p>
+      <h1>Quem decide, quem vende e quem atende vários clientes.</h1>
+      <p class="lead">Cada perfil usa o JR! de um jeito. Escolha o seu e veja como ele ajuda na prática.</p>
+    </div>
+  </section>
+  <section class="pt0">
+    <div class="container grade g2">
+      {lista.map((p) => (
+        <a class="cartao persona-g brilho" href={`/para/${p.id}/`}>
+          <div class="icone"><Icone nome={p.data.icone as any} /></div>
+          <h2>{p.data.nome}</h2>
+          <p>{p.data.descricao}</p>
+          <ul>{p.data.dores.slice(0, 2).map((x) => <li>{x}</li>)}</ul>
+          <span class="link-seta">Ver como o JR! ajuda <Icone nome="arrow" /></span>
+        </a>
+      ))}
+      <a class="cartao persona-g brilho" href="/comparar/crm-vs-planilha/">
+        <div class="icone"><Icone nome="table" /></div>
+        <h2>Ainda na planilha?</h2>
+        <p>Comparativo honesto entre planilha, CRM tradicional e um CRM de social selling. Quando cada um faz sentido.</p>
+        <span class="link-seta">Ler o comparativo <Icone nome="arrow" /></span>
+      </a>
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

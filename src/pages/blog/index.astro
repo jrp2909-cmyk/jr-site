@@ -1,0 +1,48 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icone from '../../components/Icone.astro';
+import CtaFinal from '../../components/CtaFinal.astro';
+import { postsPublicados, tempoLeitura } from '../../lib/blog';
+
+const posts = await postsPublicados();
+const data = (d: Date) => d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+---
+<Base
+  titulo="Conteúdo sobre social selling e prospecção B2B | JR!"
+  descricao="Guias práticos de social selling, prospecção no LinkedIn, cadência multicanal, follow-up e relatórios de prospecção, escritos por quem faz pré-vendas todos os dias."
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Conteúdo', href: '/blog/' }]}
+>
+  <section class="pg-hero curto">
+    <div class="fundo-grade" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow">Conteúdo</p>
+      <h1>Social selling na prática.</h1>
+      <p class="lead">Guias para quem prospecta por relacionamento, escritos por quem faz pré-vendas todos os dias. Sem fórmula mágica.</p>
+    </div>
+  </section>
+  <section class="pt0">
+    <div class="container">
+      {posts.length === 0 ? (
+        <div class="cartao vazio">
+          <h2 class="h3">Os primeiros guias estão a caminho.</h2>
+          <p>Enquanto isso, veja o <a class="link" href="/glossario/">glossário de social selling</a> ou <a class="link" href="/#teste">teste o JR!</a>.</p>
+        </div>
+      ) : (
+        <div class="grade g3 posts">
+          {posts.map((p) => (
+            <a class="cartao post brilho" href={`/blog/${p.id}/`}>
+              <span class="tag">{p.data.categoria}</span>
+              {p.data.draft && <span class="tag rascunho">Rascunho</span>}
+              <h2 class="h3">{p.data.titulo}</h2>
+              <p>{p.data.descricao}</p>
+              <p class="post-meta"><time datetime={p.data.data.toISOString()}>{data(p.data.data)}</time> · {tempoLeitura(p.body)} min de leitura</p>
+              <span class="link-seta">Ler <Icone nome="arrow" /></span>
+            </a>
+          ))}
+        </div>
+      )}
+      <p class="blog-glo"><a class="link-seta" href="/glossario/"><Icone nome="book" /> Glossário de social selling e prospecção</a></p>
+    </div>
+  </section>
+  <CtaFinal />
+</Base>

@@ -1,8 +1,9 @@
 node_modules
 dist
 .astro
-scripts/video/saida
 .vercel
 .env*
 scripts/video/saida
 scripts/video2/saida
+scripts/video3/saida
+scripts/video3/public/img

@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import Icone from '../components/Icone.astro';
+---
+<Base titulo="Página não encontrada | JR!" descricao="Esta página não existe ou mudou de endereço." noindex>
+  <section class="pg-hero n404">
+    <div class="fundo-grade" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow">Erro 404</p>
+      <h1>Essa relação esfriou<span class="marca-ponto">.</span></h1>
+      <p class="lead">A página que você procurou não existe ou mudou de endereço. Que tal recomeçar por aqui?</p>
+      <div class="hero-acoes esq">
+        <a class="btn btn-primario" href="/">Página inicial <Icone nome="arrow" /></a>
+        <a class="btn btn-sec" href="/funcionalidades/">Funcionalidades</a>
+        <a class="btn btn-sec" href="/blog/">Conteúdo</a>
+      </div>
+    </div>
+  </section>
+</Base>

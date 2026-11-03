@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import Shot from '../components/Shot.astro';
+import Icone from '../components/Icone.astro';
+import Faq from '../components/Faq.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { NOTA } from '../data/site';
+import { faqPage } from '../lib/schema';
+import extensao from '../assets/desktop/40-extensao-popup.png';
+
+const blocos = [
+  { i: 'check', t: 'A IA sugere, você decide', d: 'A IA do JR! escreve textos e sugere tarefas, funis e cadências. Nada é enviado, publicado ou aplicado sem a sua ação. Funil e cadência sugeridos só entram depois de você revisar.' },
+  { i: 'eye', t: 'A extensão só lê', d: 'A extensão JR! Radar não curte, não comenta, não envia convites nem mensagens. Ela visita só os perfis e as páginas que você cadastrou, uma vez por dia, com pausas de minutos entre páginas e limite diário.' },
+  { i: 'lock', t: 'Seus dados, só seus', d: 'Cada conta enxerga apenas o que é dela, com regras de acesso aplicadas no próprio banco de dados (Row Level Security). A conexão é sempre criptografada (HTTPS).' },
+  { i: 'shield', t: 'Chaves no servidor', d: 'Chaves de serviços e de IA ficam só no servidor, nunca no navegador. O assistente de IA usa ferramentas de somente leitura, com as mesmas regras de acesso da sua conta.' },
+  { i: 'search', t: 'Revisão de segurança', d: 'Verificamos controle de acesso entre contas, acesso indevido por identificador, injeção de código e cabeçalhos de segurança (como a política de conteúdo).' },
+  { i: 'chart', t: 'Gasto de IA sob controle', d: 'Há um teto mensal para o uso do assistente de IA, para o custo nunca sair do previsto.' },
+] as const;
+
+const faq = [
+  { q: 'O JR! tem certificação de segurança?', a: 'Ainda não. O JR! passou por uma revisão de segurança interna (controle de acesso, injeção e cabeçalhos), mas não tem certificações como ISO 27001 ou SOC 2, e não diremos o contrário.' },
+  { q: 'Existe risco para a minha conta do LinkedIn?', a: 'A extensão foi desenhada para apenas ler, em ritmo humano, com limite diário e sem executar ações. Ainda assim, o LinkedIn pode mudar suas regras, e o uso é de responsabilidade de cada pessoa. Dá para usar o JR! sem a extensão.' },
+  { q: 'A IA usa os meus dados para treinar modelos?', a: 'O JR! usa a API de IA da Anthropic (Claude). Pelas condições comerciais da API, os dados enviados não são usados para treinar os modelos.' },
+  { q: 'Onde ficam os dados?', a: 'Em banco de dados na nuvem (Supabase), com acesso separado por conta e conexão criptografada. A aplicação roda na Vercel.' },
+];
+---
+<Base
+  titulo="Segurança e privacidade no JR! — você no comando"
+  descricao="No JR!, a IA só sugere, a extensão do LinkedIn só lê e cada conta enxerga apenas os seus dados. Veja como o JR! protege a sua conta, os seus dados e o seu tom pessoal."
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Segurança', href: '/seguranca/' }]}
+  schema={[faqPage(faq)]}
+>
+  <section class="pg-hero">
+    <div class="fundo-grade" aria-hidden="true"></div>
+    <div class="container pg-hero-grid">
+      <div>
+        <p class="eyebrow">Segurança e privacidade</p>
+        <h1>Você no comando. Sempre.</h1>
+        <p class="lead">Nada é enviado, curtido ou comentado automaticamente. Isso protege a sua conta do LinkedIn, os seus dados e o seu tom pessoal.</p>
+      </div>
+      <figure class="pg-hero-img recorte">
+        <div class="moldura"><Shot src={extensao} alt="Janela da extensão JR! Radar com o contador de leituras do dia" eager widths={[480, 960]} sizes="380px" /></div>
+        <figcaption class="nota-ficticia">A extensão JR! Radar: leitura apenas, com limite diário. {NOTA}</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section class="pt0">
+    <div class="container grade g3">
+      {blocos.map((b) => (
+        <article class="cartao"><div class="icone"><Icone nome={b.i} /></div><h2 class="h3">{b.t}</h2><p>{b.d}</p></article>
+      ))}
+    </div>
+  </section>
+  <Faq itens={faq} />
+  <CtaFinal />
+</Base>

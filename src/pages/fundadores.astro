@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import Icone from '../components/Icone.astro';
+import Faq from '../components/Faq.astro';
+import FormFundador from '../components/FormFundador.astro';
+import { whats, WHATS_TXT } from '../data/site';
+import { faqPage } from '../lib/schema';
+
+const beneficios = [
+  { i: 'star', t: 'Acesso antecipado', d: 'Use o JR! antes da abertura ao público, com todas as funcionalidades.' },
+  { i: 'crown', t: 'Condição especial de fundador', d: 'Uma condição exclusiva, mantida enquanto você for cliente.' },
+  { i: 'users', t: 'Implantação com o criador', d: 'O Junior configura com você o primeiro projeto: contexto, funil e cadência.' },
+  { i: 'route', t: 'Voz no roadmap', d: 'Os fundadores ajudam a decidir o que o JR! ganha primeiro.' },
+  { i: 'chat', t: 'Suporte direto', d: 'Fale com quem criou o sistema, sem fila e sem robô.' },
+] as const;
+
+const faq = [
+  { q: 'Quanto custa ser cliente fundador?', a: 'A condição é combinada na conversa com o Junior, de acordo com o seu uso, e fica mantida enquanto você for cliente. Inscrever-se não gera nenhum compromisso.' },
+  { q: 'Quantas vagas existem?', a: 'Poucas, de propósito. O Junior acompanha a implantação de cada fundador pessoalmente.' },
+  { q: 'O que se espera de um fundador?', a: 'Usar o JR! na rotina e contar o que funciona e o que falta. É esse retorno que define as próximas versões.' },
+  { q: 'O que acontece depois que eu me inscrever?', a: 'O Junior entra em contato para entender a sua rotina, mostrar o JR! funcionando e ver se faz sentido para você.' },
+];
+---
+<Base
+  titulo="Clientes fundadores do JR! — acesso antecipado ao CRM de social selling"
+  descricao="Seja um dos primeiros clientes do JR!: acesso antecipado, condição especial de fundador, implantação com o criador e voz no roadmap. Vagas limitadas."
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Clientes fundadores', href: '/fundadores/' }]}
+  schema={[faqPage(faq)]}
+>
+  <section class="pg-hero">
+    <div class="fundo-grade" aria-hidden="true"></div>
+    <div class="container fund-grid">
+      <div>
+        <p class="eyebrow">Clientes fundadores</p>
+        <h1>Entre no JR! pela porta da frente.</h1>
+        <p class="lead">O JR! já é usado todos os dias por quem o criou. Agora estão abertas as primeiras vagas para quem quer prospectar com relacionamento, e ajudar a construir o próximo capítulo.</p>
+        <ul class="beneficios">
+          {beneficios.map((b) => (
+            <li><span class="icone"><Icone nome={b.i} /></span><div><b>{b.t}</b><span>{b.d}</span></div></li>
+          ))}
+        </ul>
+      </div>
+      <div class="fund-form cartao" id="inscricao">
+        <h2>Quero ser cliente fundador</h2>
+        <p class="fund-form-sub">Leva um minuto. O Junior responde pessoalmente.</p>
+        <FormFundador origem="fundadores" />
+        <p class="fund-alt">Prefere conversar? <a class="link" href={whats('Olá, Junior! Quero saber mais sobre ser cliente fundador do JR!.')} target="_blank" rel="noopener">WhatsApp {WHATS_TXT}</a></p>
+      </div>
+    </div>
+  </section>
+  <Faq itens={faq} titulo="Perguntas sobre o programa" />
+</Base>

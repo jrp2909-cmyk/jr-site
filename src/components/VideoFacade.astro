@@ -1,0 +1,25 @@
+---
+// O video so carrega quando a pessoa clica (economiza ~5 MB no carregamento da pagina).
+interface Props { titulo?: string; }
+const { titulo = 'Assistir: JR! em um minuto' } = Astro.props;
+---
+<div class="vfac moldura" data-vfac>
+  <a class="vfac-capa" href="/media/jr-demo.mp4" aria-label={titulo}>
+    <img src="/media/poster.webp" alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+    <span class="vfac-play" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="8 5 19 12 8 19" fill="currentColor" /></svg></span>
+    <span class="vfac-rot">{titulo}</span>
+  </a>
+</div>
+<script>
+  for (const raiz of document.querySelectorAll<HTMLElement>('[data-vfac]')) {
+    raiz.querySelector('a')!.addEventListener('click', (e) => {
+      e.preventDefault();
+      const v = document.createElement('video');
+      v.controls = true; v.autoplay = true; v.playsInline = true; v.preload = 'auto';
+      v.poster = '/media/poster.webp';
+      v.innerHTML = '<source src="/media/jr-demo.mp4" type="video/mp4"><track kind="captions" src="/media/legendas.vtt" srclang="pt-BR" label="Português">';
+      raiz.replaceChildren(v);
+      v.play().catch(() => {});
+    });
+  }
+</script>

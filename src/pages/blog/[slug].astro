@@ -1,0 +1,77 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Icone from '../../components/Icone.astro';
+import Faq from '../../components/Faq.astro';
+import CtaFinal from '../../components/CtaFinal.astro';
+import { postsPublicados, tempoLeitura } from '../../lib/blog';
+import { artigo, faqPage } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const posts = await postsPublicados();
+  return posts.map((p) => ({ params: { slug: p.id }, props: { p } }));
+}
+
+const { p } = Astro.props;
+const d = p.data;
+const { Content, headings } = await render(p);
+const sumario = headings.filter((h) => h.depth === 2);
+const url = `/blog/${p.id}/`;
+const og = `/og/blog-${p.id}.jpg`;
+const func = d.funcionalidade ? (await getCollection('funcionalidades')).find((f) => f.id === d.funcionalidade) : undefined;
+const outros = (await postsPublicados()).filter((x) => x.id !== p.id).slice(0, 3);
+const data = (x: Date) => x.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' });
+---
+<Base
+  titulo={d.seoTitulo ?? `${d.titulo} | JR!`}
+  descricao={d.descricao}
+  og={og}
+  ogAlt={d.titulo}
+  tipo="article"
+  noindex={d.draft}
+  migalhas={[{ nome: 'Início', href: '/' }, { nome: 'Conteúdo', href: '/blog/' }, { nome: d.titulo, href: url }]}
+  schema={[artigo({ titulo: d.titulo, descricao: d.descricao, url, data: d.data, atualizado: d.atualizado, imagem: og }), faqPage(d.faq)]}
+>
+  <article>
+    <header class="pg-hero curto art-topo">
+      <div class="fundo-grade" aria-hidden="true"></div>
+      <div class="container estreito">
+        <p class="eyebrow">{d.categoria}{d.draft && ' · Rascunho (não publicado)'}</p>
+        <h1>{d.titulo}</h1>
+        <p class="lead">{d.descricao}</p>
+        <p class="post-meta">
+          Por <a href="/sobre/">Junior Pereira</a> · <time datetime={d.data.toISOString()}>{data(d.data)}</time>
+          {d.atualizado && <> · atualizado em <time datetime={d.atualizado.toISOString()}>{data(d.atualizado)}</time></>}
+          · {tempoLeitura(p.body)} min de leitura
+        </p>
+      </div>
+    </header>
+    <div class="container art-grid">
+      <aside class="art-sumario" aria-label="Neste artigo">
+        <p class="rodape-tit">Neste artigo</p>
+        <ol>{sumario.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+        {func && (
+          <a class="art-func brilho" href={`/funcionalidades/${func.id}/`}>
+            <span class="icone"><Icone nome={func.data.icone as any} /></span>
+            <b>{func.data.nome}</b>
+            <small>{func.data.resumo}</small>
+            <span class="link-seta">Ver no JR! <Icone nome="arrow" /></span>
+          </a>
+        )}
+      </aside>
+      <div class="prosa art-corpo"><Content /></div>
+    </div>
+  </article>
+  <Faq itens={d.faq} />
+  {outros.length > 0 && (
+    <section>
+      <div class="container">
+        <div class="sec-cabeca"><p class="eyebrow">Continue lendo</p><h2>Outros guias</h2></div>
+        <div class="grade g3">
+          {outros.map((o) => <a class="cartao brilho" href={`/blog/${o.id}/`}><span class="tag">{o.data.categoria}</span><h3>{o.data.titulo}</h3><p>{o.data.descricao}</p></a>)}
+        </div>
+      </div>
+    </section>
+  )}
+  <CtaFinal />
+</Base>

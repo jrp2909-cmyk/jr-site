@@ -1,0 +1,23 @@
+---
+// Perguntas frequentes em <details>. O JSON-LD FAQPage vai no <head> pela pagina (faqPage em lib/schema).
+interface Props { itens: { q: string; a: string }[]; titulo?: string; }
+const { itens, titulo = 'Perguntas frequentes' } = Astro.props;
+---
+{itens.length > 0 && (
+  <section class="sec-alt" id="faq">
+    <div class="container">
+      <div class="sec-cabeca centro">
+        <p class="eyebrow">Dúvidas</p>
+        <h2>{titulo}</h2>
+      </div>
+      <div class="faq">
+        {itens.map((i) => (
+          <details>
+            <summary>{i.q}</summary>
+            <p>{i.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

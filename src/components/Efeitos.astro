@@ -1,0 +1,15 @@
+---
+// Brilho laranja que segue o cursor nos cartoes .brilho (so com mouse e sem movimento reduzido).
+// O "revelar ao rolar" e feito so com CSS (animation-timeline: view()), sem JS.
+---
+<script>
+  if (matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
+    document.addEventListener('pointermove', (e) => {
+      const el = (e.target as HTMLElement).closest?.<HTMLElement>('.brilho');
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      el.style.setProperty('--my', `${e.clientY - r.top}px`);
+    }, { passive: true });
+  }
+</script>

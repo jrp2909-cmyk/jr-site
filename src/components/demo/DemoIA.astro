@@ -1,0 +1,140 @@
+---
+// "Teste o JR!": o visitante escolhe um lead e um canal e ve o JR! analisar e escrever 3 versoes.
+// Tudo roteirizado (src/data/demo-ia.ts); nenhum dado sai do navegador.
+import { CANAIS, LEADS, PROJETO } from '../../data/demo-ia';
+const dados = JSON.stringify({ leads: LEADS, projeto: PROJETO });
+---
+<div class="dia" data-dia>
+  <script type="application/json" data-dados set:html={dados} />
+  <div class="dia-config">
+    <fieldset class="dia-leads">
+      <legend>1. Escolha um lead <small>(fictício)</small></legend>
+      {LEADS.map((l, k) => (
+        <label class="dia-lead">
+          <input type="radio" name="dia-lead" value={l.id} checked={k === 0} />
+          <span class="dia-lead-card">
+            <span class="dia-lead-top">
+              <b>{l.nome}</b>
+              <span class="dia-temp" data-faixa={l.faixa}>{l.faixa} · {l.nota}°</span>
+            </span>
+            <small>{l.cargo} · {l.empresa}</small>
+          </span>
+        </label>
+      ))}
+    </fieldset>
+    <fieldset class="dia-canais">
+      <legend>2. Escolha o canal</legend>
+      <div class="dia-chips">
+        {CANAIS.map((c, k) => (
+          <label class="chip"><input type="radio" name="dia-canal" value={c.id} checked={k === 0} /><span>{c.nome}</span></label>
+        ))}
+      </div>
+      <p class="dia-reco" data-reco></p>
+    </fieldset>
+    <button type="button" class="btn btn-primario dia-gerar" data-gerar>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z" /></svg>
+      Gerar 3 versões
+    </button>
+    <p class="dia-obs">Projeto da demonstração: <b>{PROJETO.nome}</b>, {PROJETO.oferta}.</p>
+  </div>
+
+  <div class="dia-saida" aria-live="polite">
+    <div class="dia-ficha" data-ficha></div>
+    <ol class="dia-passos" data-passos hidden></ol>
+    <div class="dia-versoes" data-versoes>
+      <p class="dia-vazio">Escolha um lead e um canal e clique em <b>Gerar 3 versões</b>. O JR! cruza o contexto do seu cliente com o perfil, o último post e o momento da relação.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Versao = { estrategia: string; texto: string; assunto?: string };
+  type Lead = { id: string; nome: string; cargo: string; empresa: string; setor: string; nota: number; faixa: string; situacao: string; post: string; recomendado: string; porque: string; versoes: Record<string, Versao[]> };
+  const NOMES: Record<string, string> = { conexao: 'Nota de conexão', dm: 'DM no LinkedIn', email: 'E-mail' };
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  for (const raiz of document.querySelectorAll<HTMLElement>('[data-dia]')) {
+    const { leads, projeto } = JSON.parse(raiz.querySelector('[data-dados]')!.textContent!) as { leads: Lead[]; projeto: { nome: string; dores: string } };
+    const ficha = raiz.querySelector<HTMLElement>('[data-ficha]')!;
+    const passos = raiz.querySelector<HTMLElement>('[data-passos]')!;
+    const versoes = raiz.querySelector<HTMLElement>('[data-versoes]')!;
+    const reco = raiz.querySelector<HTMLElement>('[data-reco]')!;
+    const gerar = raiz.querySelector<HTMLButtonElement>('[data-gerar]')!;
+    const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let rodada = 0;
+
+    const sel = (n: string) => raiz.querySelector<HTMLInputElement>(`input[name=${n}]:checked`)!.value;
+    const leadAtual = () => leads.find((l) => l.id === sel('dia-lead'))!;
+
+    const mostraFicha = () => {
+      const l = leadAtual();
+      ficha.innerHTML = `
+        <div class="dia-ficha-top"><b>${esc(l.nome)}</b><span class="dia-temp" data-faixa="${esc(l.faixa)}">${esc(l.faixa)} · ${l.nota}°</span></div>
+        <p class="dia-ficha-sub">${esc(l.cargo)} · ${esc(l.empresa)} · ${esc(l.setor)}</p>
+        <p><span class="vivo-rot">Momento</span>${esc(l.situacao)}</p>
+        <p><span class="vivo-rot">Último post</span>${esc(l.post)}</p>`;
+      const canal = sel('dia-canal');
+      reco.innerHTML = canal === l.recomendado
+        ? `<b>Boa escolha.</b> ${esc(l.porque)}`
+        : `<b>Sugestão do JR!:</b> ${esc(NOMES[l.recomendado])}. ${esc(l.porque)}`;
+    };
+
+    const digita = async (el: HTMLElement, texto: string, minha: number) => {
+      if (reduz) { el.textContent = texto; return; }
+      const passo = Math.max(2, Math.round(texto.length / 90));
+      for (let k = 0; k <= texto.length; k += passo) {
+        if (minha !== rodada) return;
+        el.textContent = texto.slice(0, k);
+        await espera(12);
+      }
+      el.textContent = texto;
+    };
+
+    const roda = async () => {
+      const minha = ++rodada;
+      const l = leadAtual();
+      const canal = sel('dia-canal');
+      gerar.disabled = true;
+      versoes.innerHTML = '';
+      passos.hidden = false;
+      const etapas = [
+        `Lendo o contexto do projeto ${projeto.nome}: oferta, tom e dores (${projeto.dores})`,
+        `Lendo o perfil de ${l.nome} e o momento da relação (${l.faixa}, ${l.nota}°)`,
+        'Cruzando o último post com as dores do projeto',
+        `Escrevendo 3 abordagens para ${NOMES[canal]}`,
+      ];
+      passos.innerHTML = etapas.map((e) => `<li><span class="pp"></span>${esc(e)}</li>`).join('');
+      for (const li of passos.children) {
+        if (minha !== rodada) return;
+        li.classList.add('ativo');
+        await espera(reduz ? 0 : 520);
+        li.classList.replace('ativo', 'feito');
+      }
+      const lista = l.versoes[canal];
+      for (const [k, v] of lista.entries()) {
+        if (minha !== rodada) return;
+        const art = document.createElement('article');
+        art.className = 'dia-versao';
+        art.innerHTML = `<p class="dia-v-rot">Versão ${k + 1} · ${esc(v.estrategia)}</p>${v.assunto ? `<p class="dia-assunto"><span>Assunto:</span> ${esc(v.assunto)}</p>` : ''}<p class="dia-texto"></p><div class="dia-v-acoes"><button type="button" class="dia-copiar">Copiar</button><span>${v.texto.length} caracteres</span></div>`;
+        versoes.appendChild(art);
+        await digita(art.querySelector('.dia-texto')!, v.texto, minha);
+        art.querySelector<HTMLButtonElement>('.dia-copiar')!.addEventListener('click', async (ev) => {
+          const b = ev.currentTarget as HTMLButtonElement;
+          try { await navigator.clipboard.writeText((v.assunto ? `Assunto: ${v.assunto}\n\n` : '') + v.texto); b.textContent = 'Copiado!'; } catch { b.textContent = 'Selecione e copie'; }
+          setTimeout(() => (b.textContent = 'Copiar'), 1800);
+        });
+      }
+      if (minha !== rodada) return;
+      const nota = document.createElement('p');
+      nota.className = 'dia-nota';
+      nota.textContent = 'Você escolhe, ajusta e envia do seu jeito. O JR! nunca envia nada sozinho.';
+      versoes.appendChild(nota);
+      gerar.disabled = false;
+    };
+
+    raiz.addEventListener('change', () => { rodada++; gerar.disabled = false; passos.hidden = true; mostraFicha(); versoes.innerHTML = '<p class="dia-vazio">Clique em <b>Gerar 3 versões</b>.</p>'; });
+    gerar.addEventListener('click', roda);
+    mostraFicha();
+  }
+</script>

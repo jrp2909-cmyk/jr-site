@@ -1,0 +1,28 @@
+# JR! – Just Relationship CRM
+
+> JR! é um CRM de social selling, em português, que transforma conexões em reuniões. Ele mede a temperatura de cada relação com um termômetro de 0 a 100, cria sozinho o próximo passo a partir de eventos reais, escreve mensagens com IA usando o contexto de cada cliente e acompanha o LinkedIn somente em leitura. A IA e a extensão só sugerem: nada é enviado sem o usuário.
+
+O JR! foi criado por Junior Pereira, profissional de pré-vendas (PJ) que atende vários clientes e prospecta por social selling, e é usado por ele todos os dias. Está abrindo as primeiras vagas para clientes fundadores. Não há preços públicos.
+
+## Público
+- SDRs, BDRs e profissionais de pré-vendas
+- Gestores comerciais
+- CEOs e donos de empresa
+- Freelancers e agências de prospecção que atendem vários clientes
+
+## Funcionalidades
+- [Termômetro de relacionamento](https://www.jrcrm.com.br/funcionalidades/termometro-de-relacionamento/): 13 passos, 40 pontos de prospecção e 60 de qualificação, faixas Gelado (0), Morno (20), Aquecendo (40), Quente (60) e Em brasa (85)
+- [Funil e tarefas automáticos](https://www.jrcrm.com.br/funcionalidades/funil-automatico/): o card muda de etapa com conexão aceita e resposta; tarefas nascem de eventos
+- [IA com o contexto do cliente](https://www.jrcrm.com.br/funcionalidades/ia-para-mensagens-de-prospeccao/): três versões de DM, nota de conexão, comentário, e-mail ou WhatsApp
+- [Radar do LinkedIn](https://www.jrcrm.com.br/funcionalidades/radar-do-linkedin/): extensão do Chrome somente leitura, uma leitura por dia, com limite
+- [Cadências multicanal](https://www.jrcrm.com.br/funcionalidades/cadencias-multicanal/): LinkedIn, e-mail, WhatsApp e reunião; sem ligação por padrão
+- [Assistente de dados](https://www.jrcrm.com.br/funcionalidades/assistente-de-dados/): perguntas em português sobre os dados, somente leitura
+- [Relatórios](https://www.jrcrm.com.br/funcionalidades/relatorios-de-prospeccao/): simplificado, médio e detalhado, em PDF ou texto; nunca mostram comissão
+- [Vários clientes](https://www.jrcrm.com.br/funcionalidades/multi-cliente/): projetos com contexto, funil, cadência, campanhas, relatórios e comissão próprios
+
+## Mais
+- [Clientes fundadores](https://www.jrcrm.com.br/fundadores/)
+- [Segurança e privacidade](https://www.jrcrm.com.br/seguranca/)
+- [Sobre o criador](https://www.jrcrm.com.br/sobre/)
+- [Glossário de social selling](https://www.jrcrm.com.br/glossario/)
+- [CRM ou planilha?](https://www.jrcrm.com.br/comparar/crm-vs-planilha/)
