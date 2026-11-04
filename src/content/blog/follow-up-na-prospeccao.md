@@ -2,10 +2,10 @@
 titulo: 'Follow-up na prospecção: quando e como fazer sem incomodar'
 seoTitulo: 'Follow-up de vendas: quando e como fazer sem incomodar | JR!'
 descricao: 'Como fazer follow-up na prospecção B2B: intervalos, o que dizer em cada contato, quando mudar de canal, quando parar e exemplos de mensagens que não soam como cobrança.'
-data: 2026-11-02
+data: 2026-11-03
 categoria: 'Prospecção'
 funcionalidade: funil-automatico
-draft: true
+draft: false
 faq:
   - q: 'Quantos follow-ups devo fazer?'
     a: 'O suficiente para ser lembrado, sem virar incômodo. Uma sequência de cinco a oito toques em algumas semanas, cada um com algo novo, é um bom ponto de partida.'

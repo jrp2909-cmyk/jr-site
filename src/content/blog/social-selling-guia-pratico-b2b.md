@@ -2,10 +2,10 @@
 titulo: 'Social selling: o guia prático para vender B2B pelo relacionamento'
 seoTitulo: 'O que é social selling e como fazer na prática (guia B2B) | JR!'
 descricao: 'O que é social selling, por que funciona em vendas B2B e um passo a passo para aplicar no LinkedIn, do perfil à reunião, sem parecer vendedor insistente.'
-data: 2026-11-02
+data: 2026-11-03
 categoria: 'Social selling'
 funcionalidade: termometro-de-relacionamento
-draft: true
+draft: false
 faq:
   - q: 'Social selling é a mesma coisa que vender pelo LinkedIn?'
     a: 'O LinkedIn é o principal canal do social selling B2B, mas o conceito é mais amplo: usar redes e conteúdo para construir relacionamento antes de vender. E-mail, WhatsApp e reuniões entram na sequência.'

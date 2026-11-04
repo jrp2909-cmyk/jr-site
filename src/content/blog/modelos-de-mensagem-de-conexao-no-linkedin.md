@@ -2,10 +2,10 @@
 titulo: '15 modelos de mensagem de conexão no LinkedIn (e por que funcionam)'
 seoTitulo: '15 modelos de mensagem de conexão no LinkedIn para prospecção | JR!'
 descricao: 'Modelos de nota de conexão no LinkedIn para prospecção B2B, organizados por situação: post recente, evento, conquista da empresa, indicação e mais. Com o porquê de cada um.'
-data: 2026-11-02
+data: 2026-11-03
 categoria: 'Prospecção'
 funcionalidade: ia-para-mensagens-de-prospeccao
-draft: true
+draft: false
 faq:
   - q: 'Qual o tamanho máximo da nota de conexão?'
     a: 'O LinkedIn limita o número de caracteres da nota e, em contas gratuitas, também a quantidade de notas personalizadas por mês. Os limites mudam, então escreva notas curtas, de duas ou três frases.'

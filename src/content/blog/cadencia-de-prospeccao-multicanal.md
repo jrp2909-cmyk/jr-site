@@ -2,10 +2,10 @@
 titulo: 'Cadência de prospecção multicanal: como montar a sua'
 seoTitulo: 'Cadência de prospecção multicanal: modelo e passo a passo | JR!'
 descricao: 'Como montar uma cadência de prospecção com LinkedIn, e-mail, WhatsApp e reunião: quantos toques, intervalos, objetivo de cada passo e um modelo de 7 toques para adaptar.'
-data: 2026-11-02
+data: 2026-11-03
 categoria: 'Prospecção'
 funcionalidade: cadencias-multicanal
-draft: true
+draft: false
 faq:
   - q: 'Quantos toques deve ter uma cadência?'
     a: 'Não existe número mágico. Cadências entre 5 e 8 toques, espaçados em duas a três semanas, são um bom ponto de partida para testar e ajustar ao seu mercado.'

@@ -2,10 +2,10 @@
 titulo: 'Como montar um relatório de prospecção que a diretoria lê'
 seoTitulo: 'Relatório de prospecção: modelo e indicadores para a diretoria | JR!'
 descricao: 'O que colocar num relatório de prospecção para CEOs, gestores e clientes: indicadores de esforço, de relacionamento e de resultado, em três níveis de detalhe.'
-data: 2026-11-02
+data: 2026-11-03
 categoria: 'Gestão comercial'
 funcionalidade: relatorios-de-prospeccao
-draft: true
+draft: false
 faq:
   - q: 'Com que frequência enviar o relatório de prospecção?'
     a: 'Semanal para gestores e clientes que acompanham de perto; quinzenal ou mensal para a diretoria. O importante é manter a regularidade.'

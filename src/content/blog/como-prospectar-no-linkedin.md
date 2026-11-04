@@ -2,10 +2,10 @@
 titulo: 'Como prospectar no LinkedIn sem parecer robô'
 seoTitulo: 'Como prospectar no LinkedIn: passo a passo sem parecer robô | JR!'
 descricao: 'Um método prático de prospecção no LinkedIn: lista certa, convite com motivo, primeira mensagem que gera conversa, follow-up e o caminho até a reunião.'
-data: 2026-11-02
+data: 2026-11-03
 categoria: 'Prospecção'
 funcionalidade: radar-do-linkedin
-draft: true
+draft: false
 faq:
   - q: 'Quantos convites posso enviar por semana no LinkedIn?'
     a: 'O LinkedIn limita convites e muda essas regras de tempos em tempos. Mais importante que o volume é a qualidade: convites para a lista certa, com motivo, têm mais aceite e menos risco.'
