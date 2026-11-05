@@ -2,6 +2,7 @@
 // Formulario da lista de clientes fundadores. Envia para /api/lista-espera/ (funcao na Vercel).
 // Se o envio falhar, oferece o WhatsApp com os dados ja escritos.
 import { WHATS_NUM } from '../data/site';
+import Radi from './Radi.astro';
 interface Props { origem?: string; }
 const { origem = 'site' } = Astro.props;
 ---
@@ -46,6 +47,7 @@ const { origem = 'site' } = Astro.props;
     <span>Concordo em ser contatado(a) sobre o JR! e li a <a href="/privacidade/" target="_blank">política de privacidade</a>.</span>
   </label>
   <button class="btn btn-primario" type="submit">Quero ser cliente fundador</button>
+  <div class="form-ok" data-ok hidden><Radi estado="feliz" /></div>
   <p class="form-msg" role="status" aria-live="polite" data-msg></p>
 </form>
 
@@ -79,6 +81,7 @@ const { origem = 'site' } = Astro.props;
         form.reset();
         msg.textContent = 'Pronto! Você está na lista de clientes fundadores. O Junior vai falar com você em breve.';
         msg.classList.add('ok');
+        form.querySelector<HTMLElement>('[data-ok]')!.hidden = false;
         btn.textContent = 'Enviado';
       } catch {
         msg.innerHTML = 'Não conseguimos enviar agora. <a target="_blank" rel="noopener">Mande pelo WhatsApp</a>: seus dados já vão escritos.';

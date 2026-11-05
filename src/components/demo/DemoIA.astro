@@ -2,6 +2,7 @@
 // "Teste o JR!": o visitante escolhe um lead e um canal e ve o JR! analisar e escrever 3 versoes.
 // Tudo roteirizado (src/data/demo-ia.ts); nenhum dado sai do navegador.
 import { CANAIS, LEADS, PROJETO } from '../../data/demo-ia';
+import Radi from '../Radi.astro';
 const dados = JSON.stringify({ leads: LEADS, projeto: PROJETO });
 ---
 <div class="dia" data-dia>
@@ -39,6 +40,7 @@ const dados = JSON.stringify({ leads: LEADS, projeto: PROJETO });
   </div>
 
   <div class="dia-saida" aria-live="polite">
+    <Radi class="dia-radi" />
     <div class="dia-ficha" data-ficha></div>
     <ol class="dia-passos" data-passos hidden></ol>
     <div class="dia-versoes" data-versoes>
@@ -61,6 +63,7 @@ const dados = JSON.stringify({ leads: LEADS, projeto: PROJETO });
     const versoes = raiz.querySelector<HTMLElement>('[data-versoes]')!;
     const reco = raiz.querySelector<HTMLElement>('[data-reco]')!;
     const gerar = raiz.querySelector<HTMLButtonElement>('[data-gerar]')!;
+    const radi = raiz.querySelector<SVGElement>('[data-radi]')!;
     const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let rodada = 0;
 
@@ -96,6 +99,7 @@ const dados = JSON.stringify({ leads: LEADS, projeto: PROJETO });
       const l = leadAtual();
       const canal = sel('dia-canal');
       gerar.disabled = true;
+      radi.dataset.estado = 'pensando';
       versoes.innerHTML = '';
       passos.hidden = false;
       const etapas = [
@@ -131,9 +135,10 @@ const dados = JSON.stringify({ leads: LEADS, projeto: PROJETO });
       nota.textContent = 'Você escolhe, ajusta e envia do seu jeito. O JR! nunca envia nada sozinho.';
       versoes.appendChild(nota);
       gerar.disabled = false;
+      radi.dataset.estado = 'feliz';
     };
 
-    raiz.addEventListener('change', () => { rodada++; gerar.disabled = false; passos.hidden = true; mostraFicha(); versoes.innerHTML = '<p class="dia-vazio">Clique em <b>Gerar 3 versões</b>.</p>'; });
+    raiz.addEventListener('change', () => { rodada++; gerar.disabled = false; radi.dataset.estado = 'normal'; passos.hidden = true; mostraFicha(); versoes.innerHTML = '<p class="dia-vazio">Clique em <b>Gerar 3 versões</b>.</p>'; });
     gerar.addEventListener('click', roda);
     mostraFicha();
   }

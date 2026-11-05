@@ -1,6 +1,7 @@
 ---
 // Termometro interativo com a mesma regra do produto: 13 passos, 40 pts de prospeccao + 60 de qualificacao.
 import { CRITERIOS, FAIXAS, faixaDe } from '../../data/site';
+import Radi from '../Radi.astro';
 const inicial = 5; // os 5 dados de contato ja marcados
 const notaIni = CRITERIOS.slice(0, inicial).reduce((s, c) => s + c.pts, 0);
 const etapas = ['Prospecção', 'Qualificação'] as const;
@@ -14,7 +15,7 @@ const etapas = ['Prospecção', 'Qualificação'] as const;
           <stop offset=".6" stop-color="#fb923c" /><stop offset=".8" stop-color="#ef4444" /><stop offset="1" stop-color="#e11d48" />
         </linearGradient>
       </defs>
-      <path d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#1c2840" stroke-width="16" stroke-linecap="round" />
+      <path d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#0C1833" stroke-width="16" stroke-linecap="round" />
       <path data-arco d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="url(#tj-grad)" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray={`${notaIni} 100`} />
     </svg>
     <div class="tj-nota" aria-live="polite">
@@ -25,8 +26,11 @@ const etapas = ['Prospecção', 'Qualificação'] as const;
       {FAIXAS.map((f) => <li><i style={`background:${f.cor}`}></i>{f.label}<small>{f.min}+</small></li>)}
     </ul>
     <div class="tj-sugestao">
-      <span class="vivo-rot">O JR! sugere agora</span>
-      <p data-sugestao>Conectar com o lead no LinkedIn. A conexão aceita vale +15 e dispara a cadência.</p>
+      <Radi class="tj-radi" />
+      <div>
+        <span class="vivo-rot">O JR! sugere agora</span>
+        <p data-sugestao>Conectar com o lead no LinkedIn. A conexão aceita vale +15 e dispara a cadência.</p>
+      </div>
     </div>
     <p class="tj-vitoria" data-vitoria role="status"></p>
   </div>
@@ -72,6 +76,7 @@ const etapas = ['Prospecção', 'Qualificação'] as const;
     const arco = raiz.querySelector<SVGPathElement>('[data-arco]')!;
     const sug = raiz.querySelector<HTMLElement>('[data-sugestao]')!;
     const vit = raiz.querySelector<HTMLElement>('[data-vitoria]')!;
+    const radi = raiz.querySelector<SVGElement>('[data-radi]')!;
     let anterior = faixa(Number(nota.textContent))[2];
     const atualiza = () => {
       const n = caixas.reduce((s, c) => s + (c.checked ? Number(c.value) : 0), 0);
@@ -86,6 +91,8 @@ const etapas = ['Prospecção', 'Qualificação'] as const;
         vit.textContent = `Vitória: subiu para ${f[1]}!`;
         vit.classList.remove('on'); void vit.offsetWidth; vit.classList.add('on');
       }
+      // Radi comemora quando a relacao sobe de faixa e fica pensativo quando ela cai
+      radi.dataset.estado = f[2] > anterior ? 'feliz' : f[2] < anterior ? 'pensando' : f[2] >= 60 ? 'feliz' : 'normal';
       anterior = f[2];
     };
     caixas.forEach((c) => c.addEventListener('change', atualiza));

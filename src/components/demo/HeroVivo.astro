@@ -2,8 +2,12 @@
 // Mini-CRM animado do hero: eventos reais da relacao fazem o termometro subir, o card mudar de etapa
 // e a proxima tarefa nascer. Pontos seguem a regra do produto (prospeccao 25 + conexao 15 + qualificacao).
 // Sem JS (ou com movimento reduzido) mostra o estado inicial e o botao "Proximo evento" funciona.
+import Radi from '../Radi.astro';
 ---
-<div class="vivo" data-vivo aria-label="Demonstração animada com dados fictícios: um lead esquentando no JR!" role="group">
+<div class="vivo-palco" data-vivo>
+<Radi class="vivo-radi" flutua />
+<div class="vivo-toast" data-toast aria-hidden="true"></div>
+<div class="vivo" aria-label="Demonstração animada com dados fictícios: um lead esquentando no JR!" role="group">
   <div class="vivo-barra" aria-hidden="true"><i></i><i></i><i></i><span>app · Órbita Cloud</span></div>
   <div class="vivo-corpo">
     <div class="vivo-card">
@@ -37,12 +41,12 @@
       <li class="vivo-ev base"><span class="ev-ic">✓</span><span>Dados de contato completos</span><b>+25</b></li>
     </ol>
   </div>
-  <div class="vivo-toast" data-toast aria-hidden="true"></div>
   <div class="vivo-ctrl">
     <button type="button" data-pausa aria-pressed="false">Pausar</button>
     <button type="button" data-proximo>Próximo evento</button>
     <span>Dados fictícios</span>
   </div>
+</div>
 </div>
 
 <script>
@@ -65,6 +69,13 @@
     const tarefa = $('[data-tarefa]'), log = $('[data-log]'), toast = $('[data-toast]');
     const btnPausa = $<HTMLButtonElement>('[data-pausa]'), btnProx = $<HTMLButtonElement>('[data-proximo]');
     const etapas = [...raiz.querySelectorAll<HTMLElement>('[data-etapa]')];
+    const radi = raiz.querySelector<SVGElement>('[data-radi]')!;
+    let timerRadi = 0;
+    const reage = (estado: string, ms: number) => {
+      radi.dataset.estado = estado;
+      clearTimeout(timerRadi);
+      timerRadi = window.setTimeout(() => (radi.dataset.estado = 'normal'), ms);
+    };
     const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let i = 0, n = 25, timer = 0, visivel = false, pausado = reduz;
@@ -104,6 +115,7 @@
       tarefa.classList.remove('nasce'); void tarefa.offsetWidth; tarefa.classList.add('nasce');
       tarefa.textContent = ev.tarefa;
       contar(antes, n); pinta();
+      reage(ev.vitoria ? 'feliz' : 'pensando', ev.vitoria ? 2200 : 1100);
       if (ev.vitoria) {
         toast.textContent = ev.vitoria;
         toast.classList.add('on');

@@ -1,5 +1,6 @@
 ---
 // Assistente simulado: perguntas prontas com respostas roteirizadas (dados ficticios).
+import Radi from '../Radi.astro';
 const perguntas = [
   { id: 'quentes', q: 'Quais são as 3 empresas mais quentes?' },
   { id: 'hoje', q: 'O que eu faço hoje?' },
@@ -9,7 +10,7 @@ const perguntas = [
 ---
 <div class="asd" data-asd>
   <div class="asd-topo">
-    <span class="asd-logo" aria-hidden="true">!</span>
+    <Radi class="asd-radi" />
     <div><b>Assistente do JR!</b><small>Só lê seus dados. Nunca altera nada.</small></div>
   </div>
   <div class="asd-chat" data-chat aria-live="polite">
@@ -79,7 +80,11 @@ const perguntas = [
         pensando.className = 'msg ia pensando';
         pensando.innerHTML = '<p><i></i><i></i><i></i><span class="sr">Consultando os dados</span></p>';
         chat.appendChild(pensando); rola();
+        const radi = raiz.querySelector<SVGElement>('[data-radi]')!;
+        radi.dataset.estado = 'pensando';
         await espera(reduz ? 200 : 1100);
+        radi.dataset.estado = 'feliz';
+        setTimeout(() => (radi.dataset.estado = 'normal'), 1400);
         const tpl = document.getElementById(`asd-${b.dataset.q}`) as HTMLTemplateElement;
         pensando.classList.remove('pensando');
         pensando.replaceChildren(tpl.content.cloneNode(true));

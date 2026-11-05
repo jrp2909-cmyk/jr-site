@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
-import logo from '../assets/brand/logo-compact.png';
+import logo from '../assets/marca/jr-logo-dark.png';
 import { LINKEDIN, NOTA, WHATS, WHATS_TXT } from '../data/site';
 
 const funcs = (await getCollection('funcionalidades')).sort((a, b) => a.data.ordem - b.data.ordem);
@@ -11,8 +11,8 @@ const publicos = (await getCollection('para')).sort((a, b) => a.data.ordem - b.d
   <div class="container">
     <div class="rodape-grade">
       <div class="rodape-marca">
-        <a class="logo-link" href="/" aria-label="JR! – página inicial"><Image src={logo} alt="JR!" height={68} /></a>
-        <p>CRM de social selling que transforma conexões em reuniões. Relacionamento desde o 1º contato.</p>
+        <a class="logo-link" href="/" aria-label="JR! – página inicial"><Image src={logo} alt="JR! Just Relationship CRM" height={256} /></a>
+        <p>Transforme leads em relacionamentos que vendem. Social selling com IA para times comerciais.</p>
         <a class="btn btn-primario btn-p" href="/fundadores/">Seja um cliente fundador</a>
       </div>
       <nav aria-label="Funcionalidades">

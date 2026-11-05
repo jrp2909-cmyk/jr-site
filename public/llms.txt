@@ -1,6 +1,6 @@
 # JR! – Just Relationship CRM
 
-> JR! é um CRM de social selling, em português, que transforma conexões em reuniões. Ele mede a temperatura de cada relação com um termômetro de 0 a 100, cria sozinho o próximo passo a partir de eventos reais, escreve mensagens com IA usando o contexto de cada cliente e acompanha o LinkedIn somente em leitura. A IA e a extensão só sugerem: nada é enviado sem o usuário.
+> JR! é um CRM de social selling, em português, que transforma leads em relacionamentos que vendem. O nome se escreve JR! e se pronuncia "Júnior". Ele mede a temperatura de cada relação com um termômetro de 0 a 100, cria sozinho o próximo passo a partir de eventos reais, escreve mensagens com IA usando o contexto de cada cliente e acompanha o LinkedIn somente em leitura. A IA e a extensão só sugerem: nada é enviado sem o usuário.
 
 O JR! foi criado por Junior Pereira, profissional de pré-vendas (PJ) que atende vários clientes e prospecta por social selling, e é usado por ele todos os dias. Está abrindo as primeiras vagas para clientes fundadores. Não há preços públicos.
 

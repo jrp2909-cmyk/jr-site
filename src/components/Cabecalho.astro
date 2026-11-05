@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import Icone from './Icone.astro';
-import logo from '../assets/brand/logo-compact.png';
+import logo from '../assets/marca/jr-icon-dark.png';
 
 const funcs = (await getCollection('funcionalidades')).sort((a, b) => a.data.ordem - b.data.ordem);
 const publicos = (await getCollection('para')).sort((a, b) => a.data.ordem - b.data.ordem);
@@ -12,7 +12,8 @@ const ativo = (base: string) => (atual.startsWith(base) ? 'page' : undefined);
 <header class="topo">
   <div class="container topo-in">
     <a class="logo-link" href="/" aria-label="JR! – Just Relationship CRM, página inicial">
-      <Image src={logo} alt="JR!" height={76} loading="eager" />
+      <Image src={logo} alt="" height={88} loading="eager" />
+      <span class="logo-txt">Just Relationship<b>CRM</b></span>
     </a>
 
     <nav class="nav" aria-label="Principal">

@@ -1,5 +1,6 @@
 ---
 import Icone from './Icone.astro';
+import Radi from './Radi.astro';
 import { whats } from '../data/site';
 interface Props { titulo?: string; texto?: string; mensagem?: string; }
 const {
@@ -10,6 +11,7 @@ const {
 ---
 <section class="cta-final">
   <div class="container">
+    <Radi class="cta-radi" flutua />
     <p class="eyebrow">Clientes fundadores</p>
     <h2>{titulo}</h2>
     <p class="lead">{texto}</p>

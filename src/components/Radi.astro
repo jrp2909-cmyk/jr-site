@@ -1,0 +1,48 @@
+---
+// Radi, mascote do JR! (desenho do kit de marca). Os estados mudam so os olhos e a boca.
+// data-estado: normal | pensando | feliz. Decorativo por padrao; passe `titulo` quando for informativo.
+interface Props {
+  class?: string;
+  estado?: 'normal' | 'pensando' | 'feliz';
+  titulo?: string;
+  flutua?: boolean;
+}
+const { class: classe, estado = 'normal', titulo, flutua = false } = Astro.props;
+const id = 'radi' + Math.random().toString(36).slice(2, 8);
+---
+<svg
+  class:list={['radi', classe, { 'radi-flutua': flutua }]}
+  data-radi
+  data-estado={estado}
+  viewBox="0 -12 300 336"
+  role={titulo ? 'img' : undefined}
+  aria-label={titulo}
+  aria-hidden={titulo ? undefined : 'true'}
+>
+  <defs>
+    <linearGradient id={`${id}g`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A78E0" /><stop offset="1" stop-color="#0B2461" /></linearGradient>
+    <radialGradient id={`${id}o`} cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#FFC987" /><stop offset=".5" stop-color="#FF7414" /><stop offset="1" stop-color="#D84300" /></radialGradient>
+    <radialGradient id={`${id}b`}><stop offset="0" stop-color="#4A78E0" stop-opacity=".55" /><stop offset="1" stop-color="#4A78E0" stop-opacity="0" /></radialGradient>
+  </defs>
+  <ellipse cx="150" cy="284" rx="96" ry="13" fill={`url(#${id}b)`} />
+  <g class="radi-corpo">
+    <path d="M90,208 L66,270 L146,218 Z" fill={`url(#${id}g)`} stroke="#AFC4F5" stroke-width="2" stroke-linejoin="round" />
+    <rect x="44" y="46" width="212" height="178" rx="64" fill={`url(#${id}g)`} stroke="#AFC4F5" stroke-width="2.5" />
+    <path d="M76,96 C104,66 176,58 230,84" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="9" stroke-linecap="round" />
+    <ellipse cx="38" cy="150" rx="12" ry="9" fill="#CFE0FF" /><ellipse cx="262" cy="150" rx="12" ry="9" fill="#CFE0FF" />
+    <g class="radi-olhos">
+      <ellipse cx="114" cy="140" rx="15" ry="19" fill="#fff" /><ellipse cx="186" cy="140" rx="15" ry="19" fill="#fff" />
+      <g class="radi-pupilas">
+        <circle cx="117" cy="144" r="8.5" fill="#0B1F4F" /><circle cx="183" cy="144" r="8.5" fill="#0B1F4F" />
+        <circle cx="120" cy="140" r="3" fill="#fff" /><circle cx="186" cy="140" r="3" fill="#fff" />
+      </g>
+    </g>
+    <circle cx="86" cy="176" r="9" fill="#FF9A3D" opacity=".6" /><circle cx="214" cy="176" r="9" fill="#FF9A3D" opacity=".6" />
+    <path class="radi-boca radi-boca-normal" d="M130,176 Q150,196 170,176" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" />
+    <path class="radi-boca radi-boca-pensa" d="M138,183 Q152,178 164,183" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" />
+    <path class="radi-boca radi-boca-feliz" d="M124,172 Q150,208 176,172 Z" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round" />
+    <circle cx="232" cy="58" r="30" fill="#A83300" transform="translate(3 4)" /><circle cx="232" cy="58" r="30" fill={`url(#${id}o)`} />
+    <path d="M227.5,44 L229.5,64 L229.6,64.8 L230,65.5 L230.5,66 L231.2,66.4 L232,66.5 L232.8,66.4 L233.5,66 L234,65.5 L234.4,64.8 L234.5,64 L236.5,44 L236.3,42.6 L235.6,41.4 L234.6,40.4 L233.4,39.7 L232,39.5 L230.6,39.7 L229.4,40.4 L228.4,41.4 L227.7,42.6 Z" fill="#fff" />
+    <circle cx="232" cy="75" r="4.4" fill="#fff" />
+  </g>
+</svg>
