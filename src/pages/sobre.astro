@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import Icone from '../components/Icone.astro';
 import CtaFinal from '../components/CtaFinal.astro';
+import Shot from '../components/Shot.astro';
+import fotoJunior from '../assets/marca/junior-pereira.jpg';
 import { LINKEDIN } from '../data/site';
 import { autor } from '../lib/schema';
 
@@ -21,7 +23,7 @@ const principios = [
   <section class="pg-hero curto">
     <div class="fundo-grade" aria-hidden="true"></div>
     <div class="container sobre-topo">
-      <div class="avatar grande" aria-hidden="true">JP<span>!</span></div>
+      <div class="avatar grande"><Shot src={fotoJunior} widths={[200, 400, 600]} sizes="200px" eager alt="Junior Pereira, criador do JR!, sorrindo" /></div>
       <div>
         <p class="eyebrow">Quem criou</p>
         <h1>Feito por quem prospecta todos os dias.</h1>

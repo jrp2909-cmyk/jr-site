@@ -14,6 +14,7 @@ import RelatorioAbas from '../components/demo/RelatorioAbas.astro';
 import { LINKEDIN, NOTA } from '../data/site';
 import { faqPage, software, video } from '../lib/schema';
 
+import fotoJunior from '../assets/marca/junior-pereira.jpg';
 import m1 from '../assets/mobile/30-mobile-dashboard.png';
 import m2 from '../assets/mobile/31-mobile-funil.png';
 import m3 from '../assets/mobile/32-mobile-tarefas.png';
@@ -247,7 +248,7 @@ const faq = [
   <section id="criador" class="sec-alt">
     <div class="container">
       <div class="criador">
-        <div class="avatar" aria-hidden="true">JP<span>!</span></div>
+        <div class="avatar"><Shot src={fotoJunior} widths={[160, 320, 480]} sizes="160px" alt="Junior Pereira, criador do JR!, sorrindo" /></div>
         <div>
           <p class="eyebrow">Quem criou</p>
           <h2>Feito por quem usa todos os dias.</h2>

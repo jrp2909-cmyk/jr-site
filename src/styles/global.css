@@ -430,9 +430,9 @@ a.cartao:hover { border-color: rgba(255,122,26,.55); transform: translateY(-3px)
 /* Criador */
 .criador { display: grid; grid-template-columns: auto 1fr; gap: clamp(20px, 4vw, 44px); align-items: center; max-width: 900px; margin-inline: auto; background: var(--jr-superficie); border: 1px solid var(--jr-borda); border-radius: 24px; padding: clamp(24px, 4vw, 48px); }
 @media (max-width: 640px) { .criador { grid-template-columns: 1fr; } }
-.avatar { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--jr-azul), #0B1B45); border: 2px solid var(--jr-cinza-contorno); font-weight: 800; font-size: 1.8rem; letter-spacing: -.03em; flex: none; }
-.avatar.grande { width: 120px; height: 120px; font-size: 2.2rem; }
-.avatar span { color: var(--jr-laranja); }
+.avatar { width: 160px; height: 160px; border-radius: 50%; overflow: hidden; flex: none; border: 3px solid var(--jr-laranja); box-shadow: 0 0 0 6px rgba(255,122,26,.14), 0 18px 40px -14px rgba(0,0,0,.8); }
+.avatar.grande { width: 200px; height: 200px; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
 .criador h2 { font-size: clamp(1.5rem, 3vw, 2rem); max-width: none; }
 .criador p { color: var(--jr-texto-suave); margin-top: 14px; }
 .criador p.nome { color: var(--jr-texto); margin-top: 18px; font-weight: 600; }
