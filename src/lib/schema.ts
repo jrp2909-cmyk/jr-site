@@ -78,11 +78,11 @@ export const artigo = (a: { titulo: string; descricao: string; url: string; data
 
 export const video = () => ({
   '@type': 'VideoObject',
-  name: 'JR! em um minuto',
-  description: 'Demonstração do JR!, CRM de social selling: termômetro de relacionamento, funil que se move sozinho, IA com o contexto do cliente, assistente e relatórios. Dados fictícios.',
+  name: 'O JR! por dentro: telas reais do CRM de social selling',
+  description: 'Telas reais do JR!, CRM de social selling: painel, funil, termômetro de relacionamento, IA com o contexto do cliente, tarefas e cadências, radar, assistente e relatórios. Dados fictícios.',
   thumbnailUrl: abs('/media/poster.webp'),
   contentUrl: abs('/media/jr-demo.mp4'),
-  uploadDate: '2026-11-02',
-  duration: 'PT1M4S',
+  uploadDate: '2026-11-04',
+  duration: 'PT1M18S',
   inLanguage: 'pt-BR',
 });

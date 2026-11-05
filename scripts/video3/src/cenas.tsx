@@ -1,380 +1,280 @@
+// Cenas do video: telas REAIS da plataforma (dados ficticios) com camera, destaque e cursor.
+// Coordenadas no espaco de 2000x1250 (os prints de 2880x1800, divididos por 1,44).
 import React from 'react';
-import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
-import { C, Cena, digitado, em, entra, faixaDe, Fundo, GRAD_TERMO, mola, MONO, NotaFicticia, Painel, Pilula, Rotulo, Sobe, useU } from './comum';
+import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
+import { C, Cena, entra, Fundo, mola, Radi, useU } from './comum';
 
-const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
-// a imagem da logo tem fundo azul-marinho: as bordas somem com uma mascara suave
-const MASCARA_LOGO: React.CSSProperties = {
-  maskImage: 'linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent), linear-gradient(180deg, transparent, #000 8%, #000 94%, transparent)',
-  maskComposite: 'intersect', WebkitMaskComposite: 'source-in' as any,
+type Quadro = { t: number; x: number; y: number; w: number }; // camera: centro e largura visivel, em fracao da cena
+type Destaque = { a: number; b: number; x: number; y: number; w: number; h: number };
+type Cursor = { t: number; x: number; y: number; clique?: boolean };
+type Capa = { t: number; x: number; y: number; w: number; h: number; cor: string }; // esconde um trecho ate o instante t
+type Tela = {
+  img: string;
+  troca?: { t: number; img: string }; // outro print real entra em fusao
+  cam: Quadro[];
+  destaques?: Destaque[];
+  cursor?: Cursor[];
+  capas?: Capa[];
+  balao?: { t: number; txt: string; lado?: 'esq' | 'dir'; alto?: number };
+  movel?: string; // na versao vertical, usa este print real de celular
+  inserto?: { t: number; img: string };
+  vw?: number; // versao vertical: largura visivel
+  vx?: number; // versao vertical: centro horizontal
 };
 
-/* 1. Abertura: logo revelada com brilho, tagline letra a letra */
-export const Intro: React.FC<Cena> = (p) => {
-  const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const { u } = useU();
-  const m = mola(f, fps, 2, { damping: 12 });
-  const revela = entra(f, 2, 22);
-  const brilho = interpolate(f, [16, 46], [-40, 140], clamp);
-  const tag = 'Relacionamento desde o 1º contato';
-  const letras = Math.floor(interpolate(f, [24, 24 + tag.length * 1.1], [0, tag.length], clamp));
+const src = (n: string) => staticFile(`img/${n}.png`);
+const curva = Easing.bezier(0.45, 0, 0.2, 1);
+const L = 2000, A = 1250;
+
+const interpola = (t: number, kfs: Quadro[], k: 'x' | 'y' | 'w') =>
+  interpolate(t, kfs.map((q) => q.t), kfs.map((q) => q[k]), { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: curva });
+
+// Cursor em seta, sempre do mesmo tamanho na tela
+const Seta: React.FC<{ pontos: Cursor[]; t: number; f: number; d: number; s: number }> = ({ pontos, t, f, d, s }) => {
+  const x = interpolate(t, pontos.map((p) => p.t), pontos.map((p) => p.x), { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: curva });
+  const y = interpolate(t, pontos.map((p) => p.t), pontos.map((p) => p.y), { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: curva });
+  const op = entra(f, pontos[0].t * d - 8, 8);
   return (
-    <Fundo calor={0.3}>
-      <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 36 * u }}>
-        <div style={{ position: 'absolute', width: 900 * u, height: 900 * u, borderRadius: '50%', background: 'radial-gradient(closest-side, rgba(249,115,22,.35), transparent)', transform: `scale(${0.4 + m * 0.8})`, opacity: 1 - entra(f, 20, 60) * 0.5 }} />
-        {/* o blend fica no conteiner: clipPath/filter isolam o grupo, e no filho ele nao alcancaria o fundo */}
-        <div style={{ position: 'relative', width: 820 * u, mixBlendMode: 'lighten', transform: `scale(${0.86 + m * 0.14})`, filter: `blur(${(1 - revela) * 14}px)`, clipPath: `inset(0 ${(1 - revela) * 100}% 0 0)` }}>
-          <Img src={staticFile('img/logo.png')} style={{ width: '100%', display: 'block', ...MASCARA_LOGO }} />
-          <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(105deg, transparent ${brilho - 12}%, rgba(255,255,255,.35) ${brilho}%, transparent ${brilho + 12}%)`, mixBlendMode: 'overlay' }} />
-        </div>
-        <div style={{ fontSize: 54 * u, fontWeight: 600, letterSpacing: '-.02em', minHeight: 70 * u }}>
-          {tag.slice(0, letras)}<span style={{ color: C.laranja, opacity: f % 20 < 10 && letras < tag.length ? 1 : 0 }}>|</span>
-        </div>
-      </AbsoluteFill>
-    </Fundo>
+    <>
+      {pontos.filter((p) => p.clique).map((p) => {
+        const k = interpolate(f, [p.t * d, p.t * d + 16], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+        return k > 0 && k < 1 ? <div key={p.t} style={{ position: 'absolute', left: p.x, top: p.y, width: 90 / s, height: 90 / s, marginLeft: -45 / s, marginTop: -45 / s, borderRadius: '50%', border: `${4 / s}px solid ${C.laranjaClaro}`, opacity: 1 - k, transform: `scale(${0.2 + k})` }} /> : null;
+      })}
+      <svg viewBox="0 0 24 24" width={44 / s} height={44 / s} style={{ position: 'absolute', left: x, top: y, opacity: op, filter: 'drop-shadow(0 2px 3px rgba(0,0,0,.6))' }}>
+        <path d="M4 2l15 11-7 1.2L8.5 21z" fill="#fff" stroke="#02060F" strokeWidth="1.4" strokeLinejoin="round" />
+      </svg>
+    </>
   );
 };
 
-/* 2. Problema: cartoes que racham e a pergunta em laranja */
-const Dor: React.FC<{ txt: string; ic: string; ini: number; quebra: number; x: number; y: number; r: number }> = ({ txt, ic, ini, quebra, x, y, r }) => {
+// Radi no canto, com uma fala curta
+const Balao: React.FC<{ t: number; txt: string; lado?: 'esq' | 'dir'; alto?: number; d: number }> = ({ t, txt, lado = 'dir', alto, d }) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const { u } = useU();
-  const m = mola(f, fps, ini);
-  const q = entra(f, quebra, 14);
-  const treme = f > quebra && f < quebra + 10 ? Math.sin(f * 2.4) * 8 * u : 0;
+  const { u, v } = useU();
+  const ini = t * d;
+  const k = mola(f, fps, ini);
+  if (f < ini) return null;
+  const esq = lado === 'esq';
+  const base = (v ? 330 : alto ?? 160) * u;
+  const pulo = Math.sin((f - ini) / 22) * 4 * u;
   return (
-    <div style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, transform: `translate(-50%,-50%) translate(${treme}px, ${q * 120 * u}px) rotate(${r + q * r * 2}deg) scale(${0.7 + m * 0.3})`, opacity: m * (1 - entra(f, quebra + 8, 10)), filter: `grayscale(${q})` }}>
-      <Painel style={{ padding: `${34 * u}px ${44 * u}px`, display: 'flex', alignItems: 'center', gap: 26 * u, position: 'relative', overflow: 'hidden' }}>
-        <span style={{ fontSize: 60 * u }}>{ic}</span>
-        <span style={{ fontSize: 50 * u, fontWeight: 700, letterSpacing: '-.02em', maxWidth: 640 * u }}>{txt}</span>
-        <svg viewBox="0 0 100 40" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: q }}>
-          <path d="M55 0 L50 14 L58 20 L47 30 L52 40" stroke="#e8ecf4" strokeWidth=".6" fill="none" pathLength={1} strokeDasharray="1" strokeDashoffset={1 - q} />
-        </svg>
-      </Painel>
+    <div style={{ position: 'absolute', bottom: base, [esq ? 'left' : 'right']: 34 * u, display: 'flex', flexDirection: esq ? 'row' : 'row-reverse', alignItems: 'center', gap: 14 * u, transform: `translateY(${(1 - k) * 60 * u + pulo}px) scale(${0.7 + 0.3 * k})`, opacity: Math.min(1, k * 1.4), transformOrigin: `${esq ? 'left' : 'right'} bottom` }}>
+      <Radi largura={(v ? 140 : 118) * u} estado="feliz" f={f} />
+      <div style={{ background: C.laranja, color: C.fundo, fontWeight: 800, fontSize: (v ? 36 : 30) * u, lineHeight: 1.2, padding: `${13 * u}px ${22 * u}px`, borderRadius: 20 * u, maxWidth: 400 * u, boxShadow: `0 ${10 * u}px ${24 * u}px -${6 * u}px rgba(255,122,26,.7)` }}>{txt}</div>
     </div>
   );
 };
 
-export const Problema: React.FC<Cena> = (p) => {
-  const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
+// Selo e marca d'agua do kit, em todas as telas
+const Selos: React.FC = () => {
   const { u, v } = useU();
-  const tPerg = em(p, 0.5);
-  const m = mola(f, fps, tPerg, { damping: 11 });
   return (
-    <Fundo calor={0}>
-      <Dor txt="Follow-up esquecido." ic="🔔" ini={em(p, 0)} quebra={tPerg - 6} x={v ? 50 : 34} y={v ? 30 : 34} r={-3} />
-      <Dor txt="Planilha que não entende de gente." ic="📋" ini={em(p, 0.18)} quebra={tPerg - 3} x={v ? 50 : 64} y={v ? 52 : 62} r={2.5} />
-      <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', opacity: f >= tPerg ? 1 : 0 }}>
-        <div style={{ textAlign: 'center', transform: `scale(${0.6 + m * 0.4})` }}>
-          <Rotulo style={{ marginBottom: 20 * u }}>A pergunta de todo dia</Rotulo>
-          <div style={{ fontSize: (v ? 110 : 128) * u, fontWeight: 800, letterSpacing: '-.04em', lineHeight: 1.02, color: C.laranja, textShadow: `0 0 ${24 * u}px rgba(249,115,22,.45)`, maxWidth: (v ? 900 : 1500) * u }}>
-            Quem merece atenção hoje?
-          </div>
-        </div>
-      </AbsoluteFill>
-    </Fundo>
+    <>
+      <div style={{ position: 'absolute', top: (v ? 30 : 22) * u, right: 26 * u, display: 'flex', alignItems: 'center', gap: 12 * u, fontSize: 22 * u, fontWeight: 600, color: C.suave, background: C.fundo, border: `${1.5 * u}px solid ${C.borda}`, borderRadius: 999, padding: `${6 * u}px ${18 * u}px` }}>
+        Dados fictícios
+        <Img src={staticFile('img/jr-marca-dagua-icone-branco-30.png')} style={{ height: 38 * u }} />
+      </div>
+    </>
   );
 };
 
-/* 3. Termometro: eventos voam para o mostrador e a relacao esquenta */
-const EVENTOS = [
-  ['Dados de contato completos', 25], ['Conexão aceita', 15], ['Respondeu à mensagem', 8], ['1ª dor mapeada', 8],
-  ['3 canais de contato', 8], ['1º compromisso', 8], ['Apresentação agendada', 10], ['Apresentação realizada', 10],
-] as const;
-
-export const Termometro: React.FC<Cena> = (p) => {
+// Print de celular dentro de um aparelho, rolando devagar (so na versao vertical)
+const Celular: React.FC<{ img: string; d: number }> = ({ img, d }) => {
   const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const { u, v } = useU();
-  const tempos = EVENTOS.map((_, k) => em(p, 0.08 + (k / (EVENTOS.length - 1)) * 0.82));
-  let nota = 0;
-  EVENTOS.forEach(([, pts], k) => { nota += pts * entra(f, tempos[k] + 8, 12); });
-  const n = Math.round(nota);
-  const fx = faixaDe(n);
-  const R = 300 * u, cx = 340 * u, cy = 330 * u;
-  const arco = Math.PI * R;
-  const ang = Math.PI * (1 - n / 100);
-  const pulsoFaixa = tempos.some((t, k) => { const antes = EVENTOS.slice(0, k).reduce((s, e) => s + e[1], 0); return faixaDe(antes).nome !== faixaDe(antes + EVENTOS[k][1]).nome && f > t + 8 && f < t + 22; });
-  return (
-    <Fundo calor={n / 100}>
-      <NotaFicticia />
-      <AbsoluteFill style={{ flexDirection: v ? 'column' : 'row', alignItems: 'center', justifyContent: 'center', gap: (v ? 40 : 90) * u, padding: 80 * u }}>
-        <div style={{ position: 'relative', width: 680 * u, height: 420 * u }}>
-          <svg width={680 * u} height={380 * u} style={{ overflow: 'visible' }}>
-            <defs><linearGradient id="g"><stop offset="0" stopColor={C.gelado} /><stop offset=".35" stopColor={C.morno} /><stop offset=".6" stopColor={C.aquecendo} /><stop offset=".8" stopColor={C.quente} /><stop offset="1" stopColor={C.brasa} /></linearGradient></defs>
-            <path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}`} fill="none" stroke="#1c2840" strokeWidth={40 * u} strokeLinecap="round" />
-            <path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}`} fill="none" stroke="url(#g)" strokeWidth={40 * u} strokeLinecap="round" strokeDasharray={`${(arco * n) / 100} ${arco}`} />
-            <circle cx={cx + R * Math.cos(ang)} cy={cy - R * Math.sin(ang)} r={26 * u} fill="#fff" stroke={C.fundo} strokeWidth={8 * u} />
-            {pulsoFaixa && <circle cx={cx} cy={cy} r={R + 40 * u} fill="none" stroke={fx.cor} strokeWidth={4 * u} opacity={0.6} />}
-          </svg>
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 150 * u, textAlign: 'center' }}>
-            <div style={{ fontFamily: MONO, fontSize: 150 * u, fontWeight: 600, lineHeight: 1 }}>{n}<span style={{ fontSize: 46 * u, color: C.suave }}>°</span></div>
-            <div style={{ marginTop: 18 * u, transform: `scale(${pulsoFaixa ? 1.12 : 1})` }}><Pilula cor={fx.cor} tam={38}>{fx.nome}</Pilula></div>
-          </div>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: v ? '1fr 1fr' : '1fr', gap: 14 * u, width: (v ? 920 : 640) * u }}>
-          {EVENTOS.map(([t, pts], k) => {
-            const m = mola(f, fps, tempos[k]);
-            const absorve = entra(f, tempos[k] + 30, 20);
-            return (
-              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 16 * u, padding: `${14 * u}px ${20 * u}px`, borderRadius: 16 * u, background: 'rgba(22,32,54,.85)', border: `${2 * u}px solid ${absorve > 0.5 ? '#22314f' : C.laranja}`, transform: `translateX(${(1 - m) * 200 * u}px)`, opacity: m * (1 - absorve * 0.45) }}>
-                <span style={{ width: 34 * u, height: 34 * u, borderRadius: '50%', display: 'grid', placeItems: 'center', background: 'rgba(74,222,128,.18)', color: C.verde, fontSize: 20 * u, fontWeight: 800 }}>✓</span>
-                <span style={{ fontSize: (v ? 26 : 30) * u, fontWeight: 500, flex: 1 }}>{t}</span>
-                <span style={{ fontFamily: MONO, fontSize: 28 * u, color: C.laranjaClaro, fontWeight: 700 }}>+{pts}</span>
-              </div>
-            );
-          })}
-        </div>
-      </AbsoluteFill>
-    </Fundo>
-  );
-};
-
-/* 4. Funil que se move sozinho + tarefa que nasce */
-const COLUNAS = ['Conexão pendente', 'A abordar', 'Em conversa', 'Apresentação'];
-const OUTROS = [['Rota 66', 'Nexo Eng.'], ['Pixel Varejo'], ['Lótus', 'Trilha Energia'], ['Aurora Log.']];
-
-export const Funil: React.FC<Cena> = (p) => {
-  const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const { u, v } = useU();
-  const passos = [em(p, 0.05), em(p, 0.3), em(p, 0.55)];
-  const col = passos.reduce((c, t, k) => c + entra(f, t, 16) * (k === 0 ? 1 : 1), 0); // 0..3
-  const larg = (v ? 230 : 360) * u, gap = (v ? 20 : 28) * u;
-  const tarefa = mola(f, fps, em(p, 0.62), { damping: 10 });
-  const ev = Math.max(0, passos.filter((t) => f >= t - 4).length - 1);
-  const eventoTxt = ['Conexão aceita', 'Respondeu à mensagem', 'Apresentação agendada'][ev];
-  const toast = entra(f, passos[ev] - 4, 8) * (1 - entra(f, passos[ev] + 26, 8));
-  return (
-    <Fundo calor={0.25 + col * 0.12}>
-      <NotaFicticia />
-      <AbsoluteFill style={{ opacity: 0.12, transform: 'perspective(1600px) rotateX(18deg)', transformOrigin: '50% 0%' }}>
-        <Img src={staticFile('img/03-funil.png')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      </AbsoluteFill>
-      <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 50 * u }}>
-        <div style={{ position: 'relative', display: 'flex', gap }}>
-          {COLUNAS.map((c, k) => (
-            <div key={c} style={{ width: larg, minHeight: 420 * u, borderRadius: 20 * u, background: 'rgba(16,24,40,.88)', border: `${2 * u}px solid ${C.borda}`, padding: 16 * u, display: 'flex', flexDirection: 'column', gap: 12 * u }}>
-              <div style={{ fontSize: (v ? 20 : 26) * u, fontWeight: 700, color: Math.round(col) === k ? C.laranjaClaro : C.suave, marginBottom: 6 * u }}>{c}</div>
-              <div style={{ height: 96 * u }} />
-              {OUTROS[k].map((o) => <div key={o} style={{ padding: 14 * u, borderRadius: 12 * u, background: C.sup2, border: `${1.5 * u}px solid #22314f`, fontSize: (v ? 18 : 22) * u, color: C.suave }}>{o}</div>)}
-            </div>
-          ))}
-          <div style={{ position: 'absolute', top: 62 * u, left: 16 * u + col * (larg + gap), width: larg - 32 * u, height: 96 * u, borderRadius: 14 * u, background: '#1b2742', border: `${2.5 * u}px solid ${C.laranja}`, boxShadow: `0 ${10 * u}px ${22 * u}px -${6 * u}px rgba(249,115,22,.55)`, padding: `${12 * u}px ${14 * u}px`, transform: `rotate(${Math.sin(col * Math.PI) * 4}deg) scale(${1 + Math.sin(col * Math.PI) * 0.06})` }}>
-            <div style={{ fontSize: (v ? 20 : 25) * u, fontWeight: 700 }}>Vértice Logística</div>
-            <div style={{ height: 10 * u, borderRadius: 99, background: GRAD_TERMO, marginTop: 12 * u, position: 'relative' }}>
-              <div style={{ position: 'absolute', top: '50%', left: `${25 + col * 15}%`, width: 18 * u, height: 18 * u, borderRadius: '50%', background: '#fff', transform: 'translate(-50%,-50%)' }} />
-            </div>
-          </div>
-          <div style={{ position: 'absolute', top: -70 * u, left: '50%', transform: `translate(-50%, ${(1 - toast) * 20 * u}px)`, opacity: toast, background: C.laranja, color: '#0a0f1c', fontWeight: 800, fontSize: 30 * u, padding: `${10 * u}px ${26 * u}px`, borderRadius: 999 }}>✓ {eventoTxt}</div>
-        </div>
-        <div style={{ transform: `scale(${tarefa}) translateY(${(1 - tarefa) * 40}px)`, opacity: tarefa }}>
-          <Painel destaque style={{ display: 'flex', alignItems: 'center', gap: 22 * u, padding: `${22 * u}px ${30 * u}px` }}>
-            <span style={{ fontSize: 46 * u }}>✨</span>
-            <div>
-              <Rotulo>Próximo passo · nasceu sozinho</Rotulo>
-              <div style={{ fontSize: (v ? 30 : 36) * u, fontWeight: 600, marginTop: 6 * u }}>Enviar a pauta da apresentação</div>
-            </div>
-          </Painel>
-        </div>
-      </AbsoluteFill>
-    </Fundo>
-  );
-};
-
-/* 5. IA: analise visivel e tres versoes sendo escritas */
-const ANALISE = ['Contexto do projeto Órbita Cloud', 'Perfil e momento de Marina Costa', 'Último post: fechamento do mês'];
-const VERSOES = [
-  ['Responder ao post', 'Oi, Marina! Li seu post sobre a planilha que só uma pessoa entende e me identifiquei…'],
-  ['Oferecer algo útil', 'Oi, Marina! Separei um checklist que times financeiros usam para encurtar o fechamento…'],
-  ['Pergunta direta', 'Oi, Marina! O que mais toma tempo hoje: a conciliação ou juntar os números do comercial?'],
-];
-export const IA: React.FC<Cena> = (p) => {
-  const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const { u, v } = useU();
-  const tA = ANALISE.map((_, k) => em(p, 0.02 + k * 0.1));
-  const tV = VERSOES.map((_, k) => em(p, 0.32 + k * 0.12));
-  const escolha = em(p, 0.8);
-  const esc = entra(f, escolha, 12);
-  return (
-    <Fundo calor={0.4}>
-      <NotaFicticia />
-      <AbsoluteFill style={{ flexDirection: v ? 'column' : 'row', alignItems: 'center', justifyContent: 'center', gap: 50 * u, padding: 90 * u }}>
-        <Painel style={{ width: (v ? 900 : 560) * u, padding: 34 * u }}>
-          <Rotulo>✨ Escrever com IA</Rotulo>
-          <div style={{ fontSize: 34 * u, fontWeight: 700, margin: `${14 * u}px 0 ${24 * u}px` }}>O JR! está lendo:</div>
-          {ANALISE.map((a, k) => {
-            const ok = f > tA[k] + 12;
-            const vis = entra(f, tA[k], 10);
-            return (
-              <div key={a} style={{ display: 'flex', gap: 16 * u, alignItems: 'center', fontSize: 28 * u, marginTop: 16 * u, opacity: 0.35 + vis * 0.65 }}>
-                <span style={{ width: 30 * u, height: 30 * u, borderRadius: '50%', border: `${4 * u}px solid ${ok ? C.verde : C.laranja}`, borderTopColor: ok ? C.verde : 'transparent', background: ok ? C.verde : 'transparent', transform: `rotate(${ok ? 0 : f * 18}deg)`, boxShadow: ok ? `inset 0 0 0 ${5 * u}px #111a2d` : 'none' }} />
-                {a}
-              </div>
-            );
-          })}
-        </Painel>
-        <div style={{ display: 'grid', gap: 18 * u, width: (v ? 900 : 900) * u }}>
-          {VERSOES.map(([e, t], k) => {
-            const m = mola(f, fps, tV[k]);
-            const sel = k === 1;
-            return (
-              <div key={e} style={{ transform: `translateY(${(1 - m) * 40 * u}px) scale(${sel ? 1 + esc * 0.04 : 1})`, opacity: m * (sel ? 1 : 1 - esc * 0.55) }}>
-                <Painel destaque={sel && esc > 0.5} style={{ padding: `${22 * u}px ${28 * u}px`, position: 'relative' }}>
-                  <Rotulo style={{ fontSize: 20 * u }}>Versão {k + 1} · {e}</Rotulo>
-                  <div style={{ fontSize: (v ? 27 : 29) * u, lineHeight: 1.45, marginTop: 10 * u, minHeight: 84 * u }}>{digitado(t, f, tV[k] + 4, 75)}</div>
-                  {sel && <div style={{ position: 'absolute', right: 22 * u, top: -20 * u, opacity: esc, transform: `scale(${0.6 + esc * 0.4})`, background: C.laranja, color: '#0a0f1c', fontWeight: 800, fontSize: 24 * u, padding: `${6 * u}px ${18 * u}px`, borderRadius: 999 }}>Você escolheu</div>}
-                </Painel>
-              </div>
-            );
-          })}
-        </div>
-      </AbsoluteFill>
-    </Fundo>
-  );
-};
-
-/* 6. Radar: varredura e novidades com sugestao */
-const POSTS = [
-  ['Marina Costa', 'Publicou sobre o fechamento do mês', 'Comentar com a sua experiência'],
-  ['Rafael Mendes', 'Inaugurou a 12ª unidade', 'Parabenizar e retomar integrações'],
-  ['Paula Ribeiro', 'Novo cargo: CEO', 'Mandar uma mensagem de parabéns'],
-];
-export const Radar: React.FC<Cena> = (p) => {
-  const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const { u, v } = useU();
-  const tP = POSTS.map((_, k) => em(p, 0.12 + k * 0.22));
-  const T = 560 * u;
-  return (
-    <Fundo calor={0.35}>
-      <NotaFicticia />
-      <AbsoluteFill style={{ flexDirection: v ? 'column' : 'row', alignItems: 'center', justifyContent: 'center', gap: 70 * u }}>
-        <div style={{ position: 'relative', width: T, height: T }}>
-          {[1, 0.7, 0.4].map((s) => <div key={s} style={{ position: 'absolute', inset: `${((1 - s) / 2) * 100}%`, borderRadius: '50%', border: `${2 * u}px solid rgba(249,115,22,.3)` }} />)}
-          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `conic-gradient(from ${f * 6}deg, rgba(249,115,22,.55), transparent 22%)` }} />
-          {tP.map((t, k) => {
-            const a = entra(f, t - 6, 8) * (1 - entra(f, t + 30, 30) * 0.6);
-            const ang = (k * 120 + 40) * (Math.PI / 180);
-            return <div key={k} style={{ position: 'absolute', left: T / 2 + Math.cos(ang) * T * 0.3 - 14 * u, top: T / 2 + Math.sin(ang) * T * 0.3 - 14 * u, width: 28 * u, height: 28 * u, borderRadius: '50%', background: C.laranja, opacity: a, boxShadow: `0 0 0 ${a * 18 * u}px rgba(249,115,22,.25)` }} />;
-          })}
-          <div style={{ position: 'absolute', inset: '38%', borderRadius: '50%', background: C.fundo, border: `${2 * u}px solid ${C.borda}`, display: 'grid', placeItems: 'center', textAlign: 'center' }}>
-            <div><div style={{ fontSize: 46 * u }}>👁</div><div style={{ fontFamily: MONO, fontSize: 18 * u, color: C.suave }}>SÓ LEITURA</div></div>
-          </div>
-        </div>
-        <div style={{ display: 'grid', gap: 18 * u, width: (v ? 900 : 760) * u }}>
-          {POSTS.map(([n, o, s], k) => {
-            const m = mola(f, fps, tP[k]);
-            return (
-              <div key={n} style={{ transform: `translateX(${(1 - m) * 160 * u}px)`, opacity: m }}>
-                <Painel style={{ padding: `${22 * u}px ${28 * u}px` }}>
-                  <div style={{ fontSize: 30 * u, fontWeight: 700 }}>{n} <span style={{ fontWeight: 400, color: C.suave }}>· {o}</span></div>
-                  <div style={{ marginTop: 12 * u, fontSize: 26 * u, color: C.laranjaClaro, background: 'rgba(249,115,22,.1)', borderRadius: 10 * u, padding: `${8 * u}px ${14 * u}px` }}>💡 Sugestão: {s}</div>
-                </Painel>
-              </div>
-            );
-          })}
-        </div>
-      </AbsoluteFill>
-    </Fundo>
-  );
-};
-
-/* 7. Assistente e relatorios */
-const LINHAS = [['Nexo Engenharia', 'Quente · 64°', C.quente], ['Rota 66 Transportes', 'Quente · 61°', C.quente], ['Lótus Bem-estar', 'Aquecendo · 48°', C.aquecendo]] as const;
-export const Assistente: React.FC<Cena> = (p) => {
-  const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const { u, v } = useU();
-  const tQ = em(p, 0), tR = em(p, 0.2), troca = em(p, 0.5);
-  const sai = entra(f, troca, 14);
-  const rel = ['rel-simples-topo.png', 'rel-medio-topo.png', 'rel-detalhado-topo.png'];
-  return (
-    <Fundo calor={0.45}>
-      <NotaFicticia />
-      <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', opacity: 1 - sai, transform: `translateX(${-sai * 300 * u}px) scale(${1 - sai * 0.1})` }}>
-        <Painel style={{ width: (v ? 920 : 1000) * u, overflow: 'hidden' }}>
-          <div style={{ display: 'flex', gap: 18 * u, alignItems: 'center', padding: `${20 * u}px ${28 * u}px`, borderBottom: `${2 * u}px solid ${C.borda}`, background: '#0c1322' }}>
-            <span style={{ width: 56 * u, height: 56 * u, borderRadius: '50%', background: C.laranja, color: '#0a0f1c', display: 'grid', placeItems: 'center', fontWeight: 900, fontSize: 34 * u }}>!</span>
-            <div><div style={{ fontSize: 30 * u, fontWeight: 700 }}>Assistente do JR!</div><div style={{ fontSize: 22 * u, color: C.suave }}>Só lê. Nunca altera nada.</div></div>
-          </div>
-          <div style={{ padding: 28 * u, display: 'grid', gap: 18 * u }}>
-            <div style={{ justifySelf: 'end', background: C.laranja, color: '#0a0f1c', fontWeight: 700, fontSize: 30 * u, padding: `${14 * u}px ${22 * u}px`, borderRadius: 20 * u, opacity: entra(f, tQ, 8), transform: `translateY(${(1 - entra(f, tQ, 10)) * 20}px)` }}>Quais são as 3 mais quentes?</div>
-            <div style={{ background: C.sup2, border: `${2 * u}px solid ${C.borda}`, borderRadius: 20 * u, padding: 22 * u, opacity: entra(f, tR, 8) }}>
-              {LINHAS.map(([e, t, c], k) => {
-                const m = mola(f, fps, tR + 4 + k * 5);
-                return (
-                  <div key={e} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 28 * u, padding: `${12 * u}px 0`, borderBottom: k < 2 ? `${1.5 * u}px solid ${C.borda}` : 'none', opacity: m, transform: `translateX(${(1 - m) * 40}px)` }}>
-                    <span>{k + 1}. {e}</span><Pilula cor={c}>{t}</Pilula>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </Painel>
-      </AbsoluteFill>
-      <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', opacity: sai }}>
-        <div style={{ position: 'relative', width: 1400 * u, height: 760 * u, transform: v ? 'scale(.68)' : undefined }}>
-          {rel.map((r, k) => {
-            const m = mola(f, fps, troca + 4 + k * 4, { damping: 13 });
-            const rot = (k - 1) * 9 * m, x = (k - 1) * 380 * m * u;
-            return (
-              <div key={r} style={{ position: 'absolute', left: '50%', top: 40 * u, width: 520 * u, height: 640 * u, marginLeft: -260 * u, transform: `translateX(${x}px) rotate(${rot}deg) translateY(${(1 - m) * 200}px)`, borderRadius: 18 * u, overflow: 'hidden', background: '#fff', boxShadow: `0 ${20 * u}px ${30 * u}px -${10 * u}px rgba(0,0,0,.75)`, zIndex: k === 1 ? 2 : 1 }}>
-                <Img src={staticFile(`img/${r}`)} style={{ width: '100%' }} />
-              </div>
-            );
-          })}
-          <div style={{ position: 'absolute', left: '50%', bottom: -10 * u, transform: `translateX(-50%) scale(${mola(f, fps, troca + 18)})`, zIndex: 3, background: C.laranja, color: '#0a0f1c', fontWeight: 800, fontSize: 36 * u, padding: `${14 * u}px ${34 * u}px`, borderRadius: 999, boxShadow: `0 ${12 * u}px ${26 * u}px -${8 * u}px rgba(249,115,22,.8)`, whiteSpace: 'nowrap' }}>Relatório em 1 clique · PDF ou WhatsApp</div>
-        </div>
-      </AbsoluteFill>
-    </Fundo>
-  );
-};
-
-/* 8. Voce no comando */
-export const Comando: React.FC<Cena> = (p) => {
-  const f = useCurrentFrame();
-  const { u, v } = useU();
-  const t1 = em(p, 0), t2 = em(p, 0.3), t3 = em(p, 0.58);
-  const faixa = entra(f, t2 - 2, 12);
-  const tam = (v ? 120 : 150) * u;
-  return (
-    <Fundo calor={0.2}>
-      <AbsoluteFill style={{ justifyContent: 'center', paddingLeft: (v ? 80 : 180) * u, gap: 6 * u }}>
-        <Sobe ini={t1}><div style={{ fontSize: tam, fontWeight: 800, letterSpacing: '-.04em' }}>A IA sugere.</div></Sobe>
-        <div style={{ position: 'relative', alignSelf: 'flex-start' }}>
-          <div style={{ position: 'absolute', left: -30 * u, right: -30 * u, top: '8%', bottom: '4%', background: C.laranja, transformOrigin: 'left', transform: `scaleX(${faixa})`, borderRadius: 12 * u }} />
-          <Sobe ini={t2} style={{ position: 'relative' }}><div style={{ fontSize: tam, fontWeight: 800, letterSpacing: '-.04em', color: faixa > 0.6 ? '#0a0f1c' : C.laranja }}>Você decide.</div></Sobe>
-        </div>
-        <Sobe ini={t3} style={{ marginTop: 24 * u }}><div style={{ fontSize: 56 * u, color: C.suave, fontWeight: 500 }}>Nada é enviado sem você.</div></Sobe>
-      </AbsoluteFill>
-    </Fundo>
-  );
-};
-
-/* 9. Final: logo, convite para fundadores e endereco */
-export const Final: React.FC<Cena> = (p) => {
-  const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
   const { u } = useU();
-  const m = mola(f, fps, 4, { damping: 12 });
-  const b = mola(f, fps, em(p, 0.35));
-  const url = entra(f, em(p, 0.6), 14);
-  const brilho = interpolate(f % 60, [0, 60], [-30, 130]);
+  const larg = 760 * u, alt = 1420 * u;
+  const altImg = (larg * 2532) / 1170;
+  const y = interpolate(f, [15, d - 10], [0, -(altImg - alt) * 0.75], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: curva });
   return (
-    <Fundo calor={0.55}>
-      <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 46 * u }}>
-        <Img src={staticFile('img/logo.png')} style={{ width: 640 * u, mixBlendMode: 'lighten', ...MASCARA_LOGO, transform: `scale(${0.8 + m * 0.2})`, opacity: m }} />
-        <div style={{ transform: `scale(${b})`, position: 'relative', overflow: 'hidden', background: C.laranja, color: '#0a0f1c', fontWeight: 800, fontSize: 52 * u, padding: `${22 * u}px ${54 * u}px`, borderRadius: 22 * u, boxShadow: `0 ${14 * u}px ${30 * u}px -${8 * u}px rgba(249,115,22,.8)` }}>
-          Seja um cliente fundador
-          <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(105deg, transparent ${brilho - 10}%, rgba(255,255,255,.45) ${brilho}%, transparent ${brilho + 10}%)` }} />
-        </div>
-        <div style={{ fontFamily: MONO, fontSize: 46 * u, letterSpacing: '.04em', opacity: url, transform: `translateY(${(1 - url) * 20}px)` }}>jrcrm.com.br</div>
+    <div style={{ position: 'absolute', left: '50%', top: 110 * u, marginLeft: -larg / 2, width: larg, height: alt, overflow: 'hidden', borderRadius: 54 * u, border: `${6 * u}px solid ${C.borda}`, background: C.fundo, boxShadow: `0 ${30 * u}px ${50 * u}px -${20 * u}px #000` }}>
+      <Img src={src(img)} style={{ width: larg, height: altImg, transform: `translateY(${y}px)` }} />
+    </div>
+  );
+};
+
+const CenaTela: React.FC<Cena & { tela: Tela }> = ({ d, tela }) => {
+  const f = useCurrentFrame();
+  const { width, height, fps } = useVideoConfig();
+  const { u, v } = useU();
+  const t = f / d;
+
+  if (v && tela.movel) {
+    return (
+      <Fundo>
+        <Celular img={tela.movel} d={d} />
+        <Selos />
+        {tela.balao && <Balao {...tela.balao} d={d} />}
+      </Fundo>
+    );
+  }
+
+  // Camera: na versao vertical a largura visivel fica menor, e a tela se mantem no alto
+  let w = interpola(t, tela.cam, 'w'), x = interpola(t, tela.cam, 'x'), y = interpola(t, tela.cam, 'y');
+  if (v) {
+    w = Math.min(w, tela.vw ?? 1120);
+    x = tela.vx ?? Math.max(w / 2 - 20, Math.min(L - w / 2 + 20, x));
+    const alto = height / (width / w); // altura visivel, em coordenadas do print
+    y = alto < A ? Math.max(alto / 2, y + alto * 0.09) : A / 2 + alto * 0.09; // sobe a tela para abrir espaco a legenda
+  }
+  const s = width / w;
+  const trocaK = tela.troca ? interpolate(f, [tela.troca.t * d, tela.troca.t * d + 10], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }) : 0;
+
+  return (
+    <Fundo>
+      <div style={{ position: 'absolute', left: 0, top: 0, width: L, height: A, transformOrigin: '0 0', transform: `translate(${width / 2 - x * s}px, ${height / 2 - y * s}px) scale(${s})`, borderRadius: 18, overflow: 'hidden', outline: `2px solid ${C.borda}`, background: C.fundo }}>
+        <Img src={src(tela.img)} style={{ position: 'absolute', inset: 0, width: L, height: A }} />
+        {tela.troca && <Img src={src(tela.troca.img)} style={{ position: 'absolute', inset: 0, width: L, height: A, opacity: trocaK }} />}
+        {tela.capas?.map((c) => {
+          const k = interpolate(f, [c.t * d, c.t * d + 16], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic) });
+          return k < 1 ? <div key={c.t} style={{ position: 'absolute', left: c.x + c.w * k, top: c.y, width: c.w * (1 - k), height: c.h, background: c.cor }} /> : null;
+        })}
+        {tela.destaques?.map((h, i) => {
+          const op = interpolate(t, [h.a, h.a + 0.05, h.b - 0.05, h.b], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+          return op > 0 ? <div key={i} style={{ position: 'absolute', left: h.x - 6, top: h.y - 6, width: h.w + 12, height: h.h + 12, borderRadius: 16, border: `3px solid ${C.laranja}`, boxShadow: '0 0 0 3000px rgba(2,6,15,.62)', opacity: op }} /> : null;
+        })}
+        {tela.cursor && <Seta pontos={tela.cursor} t={t} f={f} d={d} s={s} />}
+      </div>
+      {tela.inserto && (() => {
+        const k = mola(f, fps, tela.inserto.t * d, { damping: 16 });
+        const h = (v ? 900 : 840) * u, l = (h * 960) / 1272;
+        return <Img src={src(tela.inserto.img)} style={{ position: 'absolute', right: (v ? (width - l) / 2 : 90 * u), top: (v ? 520 : 110) * u, width: l, height: h, borderRadius: 24 * u, opacity: Math.min(1, k * 1.5), transform: `translateY(${(1 - k) * 120 * u}px)`, boxShadow: `0 ${30 * u}px ${50 * u}px -${10 * u}px rgba(0,0,0,.8)` }} />;
+      })()}
+      <Selos />
+      {tela.balao && <Balao {...tela.balao} d={d} />}
+    </Fundo>
+  );
+};
+
+// Fundo real da area de mensagens da tela de IA (amostrado do print)
+const COR_IA = '#101828';
+
+const TELAS: Record<string, Tela> = {
+  painel: {
+    img: '01-dashboard', movel: '30-mobile-dashboard',
+    cam: [{ t: 0, x: 1000, y: 590, w: 2060 }, { t: 0.2, x: 1140, y: 480, w: 1800 }, { t: 0.62, x: 1140, y: 480, w: 1800 }, { t: 0.82, x: 1140, y: 780, w: 1700 }, { t: 1, x: 1140, y: 800, w: 1660 }],
+    destaques: [{ a: 0.2, b: 0.44, x: 322, y: 310, w: 1645, h: 92 }, { a: 0.44, b: 0.68, x: 322, y: 424, w: 1645, h: 97 }, { a: 0.76, b: 1, x: 322, y: 1116, w: 1645, h: 134 }],
+    balao: { t: 0.3, txt: 'Seu dia em um só lugar' },
+  },
+  funil: {
+    img: '03-funil', troca: { t: 0.5, img: '04-funil-filtro-termometro-quente' }, movel: '31-mobile-funil',
+    cam: [{ t: 0, x: 1000, y: 590, w: 2060 }, { t: 0.28, x: 1000, y: 590, w: 2000 }, { t: 0.46, x: 1420, y: 320, w: 1150 }, { t: 0.62, x: 1420, y: 320, w: 1150 }, { t: 0.82, x: 1300, y: 560, w: 1600 }, { t: 1, x: 1300, y: 580, w: 1560 }],
+    cursor: [{ t: 0.22, x: 900, y: 700 }, { t: 0.47, x: 1745, y: 150, clique: true }, { t: 1, x: 1745, y: 150 }],
+    destaques: [{ a: 0.5, b: 0.74, x: 1668, y: 104, w: 145, h: 85 }],
+    balao: { t: 0.6, txt: 'Só as mais quentes', lado: 'esq' },
+  },
+  termometro: {
+    img: '06-empresa-ficha-termometro',
+    vw: 640, vx: 1717,
+    cam: [{ t: 0, x: 1000, y: 590, w: 2060 }, { t: 0.22, x: 1400, y: 860, w: 1250 }, { t: 0.46, x: 1400, y: 860, w: 1250 }, { t: 0.6, x: 1440, y: 985, w: 1180 }, { t: 1, x: 1440, y: 985, w: 1180 }],
+    destaques: [{ a: 0.22, b: 0.48, x: 1490, y: 590, w: 455, h: 100 }, { a: 0.5, b: 1, x: 1490, y: 705, w: 455, h: 510 }],
+    balao: { t: 0.42, txt: 'Cada passo vira pontos', lado: 'esq' },
+  },
+  ia: {
+    img: '07-empresa-escrever-com-ia', vw: 1120, vx: 880,
+    cam: [{ t: 0, x: 870, y: 400, w: 1500 }, { t: 0.3, x: 870, y: 400, w: 1400 }, { t: 0.5, x: 870, y: 700, w: 1400 }, { t: 1, x: 870, y: 860, w: 1300 }],
+    cursor: [{ t: 0.08, x: 900, y: 320 }, { t: 0.26, x: 470, y: 455, clique: true }, { t: 1, x: 470, y: 455 }],
+    capas: [
+      { t: 0.3, x: 345, y: 488, w: 1068, h: 240, cor: COR_IA },
+      { t: 0.46, x: 345, y: 728, w: 1068, h: 262, cor: COR_IA },
+      { t: 0.62, x: 345, y: 990, w: 1068, h: 260, cor: COR_IA },
+    ],
+    destaques: [{ a: 0.76, b: 1, x: 351, y: 1000, w: 1053, h: 220 }],
+    balao: { t: 0.76, txt: 'Você escolhe a sua', lado: 'dir', alto: 560 },
+  },
+  tarefas: {
+    img: '08-tarefas', troca: { t: 0.52, img: '11-cadencias' }, movel: '32-mobile-tarefas',
+    cam: [{ t: 0, x: 1000, y: 590, w: 2060 }, { t: 0.14, x: 1150, y: 640, w: 1800 }, { t: 0.48, x: 1150, y: 640, w: 1800 }, { t: 0.62, x: 1000, y: 800, w: 1640 }, { t: 1, x: 1020, y: 830, w: 1600 }],
+    cursor: [{ t: 0.1, x: 1400, y: 300 }, { t: 0.32, x: 968, y: 525, clique: true }, { t: 0.5, x: 968, y: 525 }],
+    destaques: [{ a: 0.62, b: 1, x: 352, y: 626, w: 1362, h: 540 }],
+    balao: { t: 0.68, txt: 'Um passo para cada canal', lado: 'esq' },
+  },
+  radar: {
+    img: '09-radar', vw: 880, vx: 735,
+    cam: [{ t: 0, x: 1000, y: 590, w: 2060 }, { t: 0.22, x: 780, y: 450, w: 1250 }, { t: 0.58, x: 780, y: 450, w: 1250 }, { t: 0.72, x: 800, y: 480, w: 1500 }, { t: 1, x: 800, y: 480, w: 1460 }],
+    destaques: [{ a: 0.2, b: 0.62, x: 346, y: 381, w: 767, h: 78 }],
+    cursor: [{ t: 0.3, x: 800, y: 300 }, { t: 0.52, x: 625, y: 560 }, { t: 1, x: 625, y: 560 }],
+    inserto: { t: 0.64, img: '40-extensao-popup' },
+    balao: { t: 0.68, txt: 'Só em leitura', lado: 'esq' },
+  },
+  assistente: {
+    img: '14-assistente-ia', vw: 640, vx: 1690,
+    cam: [{ t: 0, x: 1000, y: 590, w: 2060 }, { t: 0.2, x: 1500, y: 650, w: 1100 }, { t: 1, x: 1500, y: 900, w: 1100 }],
+    destaques: [{ a: 0.2, b: 1, x: 1412, y: 328, w: 553, h: 888 }],
+    balao: { t: 0.4, txt: 'Pergunte em português', lado: 'esq' },
+  },
+};
+
+const Relatorios: React.FC<Cena> = ({ d }) => {
+  const f = useCurrentFrame();
+  const zoom = 1 + (f / d) * 0.07;
+  const { fps } = useVideoConfig();
+  const { u, v } = useU();
+  const itens = [['rel-simples-topo', 'Simplificado', 'Para CEOs'], ['rel-medio-topo', 'Médio', 'Para gestores'], ['rel-detalhado-topo', 'Detalhado', 'Para quem acompanha de perto']];
+  const larg = (v ? 620 : 510) * u, alt = (larg * 1.18);
+  return (
+    <Fundo>
+      <div style={{ position: 'absolute', inset: 0, transform: `scale(${zoom})`, display: 'flex', flexDirection: v ? 'column' : 'row', alignItems: 'center', justifyContent: v ? 'flex-start' : 'center', gap: (v ? 16 : 34) * u, paddingTop: (v ? 100 : 60) * u }}>
+        {itens.map(([img, nome, pub], i) => {
+          const k = mola(f, fps, 15 + i * 14, { damping: 15 });
+          return (
+            <div key={img} style={{ width: larg, opacity: Math.min(1, k * 1.5), transform: `translateY(${(1 - k) * 90 * u}px) rotate(${(1 - k) * (i - 1) * 5}deg)` }}>
+              <div style={{ fontWeight: 800, fontSize: (v ? 32 : 34) * u, marginBottom: 8 * u, color: C.texto }}>{nome}<span style={{ fontWeight: 500, fontSize: (v ? 24 : 21) * u, color: C.suave, marginLeft: 12 * u }}>{pub}</span></div>
+              <div style={{ height: v ? 420 * u : alt, overflow: 'hidden', borderRadius: 16 * u, border: `${2 * u}px solid ${C.borda}`, background: '#fff' }}>
+                <Img src={src(img)} style={{ width: '100%', display: 'block' }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <Selos />
+    </Fundo>
+  );
+};
+
+const Comando: React.FC<Cena> = ({ d, vf, vd }) => {
+  const f = useCurrentFrame();
+  const { u, v, width, height } = useU();
+  const s = width / (v ? 1500 : 1900);
+  const z = 1 + (f / d) * 0.04;
+  const trechos: [string, number, string][] = [['A IA sugere.', 0.02, C.texto], ['Você decide.', 0.28, C.laranjaClaro], ['Nada é enviado sem você.', 0.55, C.suave]];
+  return (
+    <Fundo>
+      <div style={{ position: 'absolute', left: width / 2 - (L * s * z) / 2, top: height / 2 - (A * s * z) / 2, width: L * s * z, height: A * s * z, opacity: 0.2 }}>
+        <Img src={src('07-empresa-escrever-com-ia')} style={{ width: '100%', height: '100%' }} />
+      </div>
+      <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: 60 * u }}>
+        {trechos.map(([txt, k, cor], i) => {
+          const a = entra(f, vf + vd * k, 12);
+          return <div key={txt} style={{ opacity: a, transform: `translateY(${(1 - a) * 26 * u}px)`, color: cor, fontWeight: i < 2 ? 800 : 600, fontSize: (i < 2 ? (v ? 118 : 116) : (v ? 54 : 56)) * u, letterSpacing: '-.03em', lineHeight: 1.14, marginTop: i === 2 ? 22 * u : 0 }}>{txt}</div>;
+        })}
+      </AbsoluteFill>
+      <Selos />
+    </Fundo>
+  );
+};
+
+const Final: React.FC<Cena> = () => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { u, v } = useU();
+  const k = mola(f, fps, 10);
+  return (
+    <Fundo>
+      <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: 50 * u }}>
+        <div style={{ transform: `scale(${k}) translateY(${Math.sin(f / 18) * 5 * u}px)` }}><Radi largura={(v ? 380 : 270) * u} estado="feliz" f={f} /></div>
+        <div style={{ opacity: entra(f, 18), fontWeight: 800, fontSize: (v ? 94 : 92) * u, letterSpacing: '-.03em', lineHeight: 1.1, marginTop: 12 * u }}>Seja um <span style={{ color: C.laranjaClaro }}>cliente fundador</span></div>
+        <div style={{ opacity: entra(f, 28), fontWeight: 500, fontSize: (v ? 40 : 38) * u, color: C.suave, marginTop: 18 * u }}>Transforme leads em relacionamentos que vendem.</div>
+        <div style={{ opacity: entra(f, 38), transform: `scale(${0.92 + 0.08 * entra(f, 38)})`, fontWeight: 800, fontSize: (v ? 50 : 44) * u, color: C.fundo, background: C.laranja, borderRadius: 18 * u, padding: `${14 * u}px ${34 * u}px`, marginTop: 34 * u }}>jrcrm.com.br</div>
       </AbsoluteFill>
     </Fundo>
   );
+};
+
+const tela = (t: Tela): React.FC<Cena> => (p) => <CenaTela {...p} tela={t} />;
+export const CENAS: Record<string, React.FC<Cena>> = {
+  ...Object.fromEntries(Object.entries(TELAS).map(([id, t]) => [id, tela(t)])),
+  relatorios: Relatorios,
+  comando: Comando,
+  final: Final,
 };

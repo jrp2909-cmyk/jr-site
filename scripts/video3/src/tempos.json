@@ -2,79 +2,87 @@
   "fps": 30,
   "transicao": 15,
   "batida": 15,
-  "total": 1920,
+  "total": 2025,
   "cenas": [
     {
-      "id": "intro",
-      "legenda": "JR! Relacionamento desde o 1º contato.",
-      "fala": 2.98,
-      "quadros": 150,
-      "inicio": 0,
-      "vozEm": 9
-    },
-    {
-      "id": "problema",
-      "legenda": "Follow-up esquecido. Planilha que não entende de gente. E a pergunta de todo dia: quem merece atenção hoje?",
+      "id": "painel",
+      "legenda": "Este é o JR! Sua prospecção inteira em um só lugar: metas, temperatura das relações e próximos passos.",
       "fala": 7.44,
       "quadros": 285,
-      "inicio": 135,
-      "vozEm": 150
-    },
-    {
-      "id": "termometro",
-      "legenda": "O JR! mede a temperatura de cada relação. Conexão aceita, resposta, dor mapeada: cada passo vira pontos, de Gelado a Em brasa.",
-      "fala": 10.03,
-      "quadros": 360,
-      "inicio": 405,
-      "vozEm": 420
+      "inicio": 0,
+      "vozEm": 15
     },
     {
       "id": "funil",
-      "legenda": "O funil se move sozinho. E o próximo passo aparece na hora certa.",
-      "fala": 4.35,
-      "quadros": 180,
-      "inicio": 750,
-      "vozEm": 765
+      "legenda": "No funil, você vê onde cada empresa está. Filtre por temperatura e descubra quem merece atenção hoje.",
+      "fala": 6.32,
+      "quadros": 240,
+      "inicio": 270,
+      "vozEm": 285
+    },
+    {
+      "id": "termometro",
+      "legenda": "O JR! mede a temperatura de cada relação. Cada passo conquistado vira pontos, de Gelado a Em brasa.",
+      "fala": 6.23,
+      "quadros": 240,
+      "inicio": 495,
+      "vozEm": 510
     },
     {
       "id": "ia",
-      "legenda": "A IA lê o contexto do seu cliente e escreve três versões da mensagem. Você escolhe a sua.",
-      "fala": 6.62,
+      "legenda": "A IA usa o contexto do seu cliente e escreve três versões da mensagem. Você escolhe a sua.",
+      "fala": 6.67,
       "quadros": 255,
-      "inicio": 915,
-      "vozEm": 930
+      "inicio": 720,
+      "vozEm": 735
+    },
+    {
+      "id": "tarefas",
+      "legenda": "As tarefas ficam organizadas por dia, e a cadência mostra o próximo passo em cada canal.",
+      "fala": 4.85,
+      "quadros": 195,
+      "inicio": 960,
+      "vozEm": 975
     },
     {
       "id": "radar",
-      "legenda": "O Radar acompanha o LinkedIn dos seus leads, só em leitura, e sugere como interagir.",
-      "fala": 4.74,
+      "legenda": "O Radar acompanha os posts dos seus leads, só em leitura, e sugere como interagir.",
+      "fala": 4.75,
       "quadros": 195,
-      "inicio": 1155,
-      "vozEm": 1170
+      "inicio": 1140,
+      "vozEm": 1155
     },
     {
       "id": "assistente",
-      "legenda": "Pergunte ao seu CRM. E preste contas em um clique.",
-      "fala": 3.94,
-      "quadros": 180,
-      "inicio": 1335,
-      "vozEm": 1350
+      "legenda": "Pergunte ao seu CRM, em português, e receba a resposta com os seus dados.",
+      "fala": 4.49,
+      "quadros": 195,
+      "inicio": 1320,
+      "vozEm": 1335
+    },
+    {
+      "id": "relatorios",
+      "legenda": "E preste contas em um clique, com relatórios em três níveis de detalhe.",
+      "fala": 3.78,
+      "quadros": 165,
+      "inicio": 1500,
+      "vozEm": 1515
     },
     {
       "id": "comando",
       "legenda": "A IA sugere. Você decide. Nada é enviado sem você.",
       "fala": 5.93,
       "quadros": 240,
-      "inicio": 1500,
-      "vozEm": 1515
+      "inicio": 1650,
+      "vozEm": 1665
     },
     {
       "id": "final",
       "legenda": "JR! Seja um cliente fundador. jrcrm.com.br",
       "fala": 3.36,
-      "quadros": 195,
-      "inicio": 1725,
-      "vozEm": 1740
+      "quadros": 150,
+      "inicio": 1875,
+      "vozEm": 1890
     }
   ]
 }
